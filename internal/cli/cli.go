@@ -43,10 +43,10 @@ type command struct {
 // allCommands lists every subcommand by name; a function rather than a var to avoid an init cycle via runHelp.
 func allCommands() map[string]command {
 	return map[string]command{
-		"configure": {summary: "Choose an instance and answer a few questions about how Firefox should behave", run: notImplemented("milestone 5")},
-		"apply":     {summary: "Rebuild and write user.js for every configured instance", run: notImplemented("milestone 4")},
+		"configure": {summary: "Choose an instance and save answers for it (--profile NAME --feel … --ai … --privacy …)", run: runConfigure},
+		"apply":     {summary: "Rebuild and write user.js for every configured instance (--dry-run, --offline)", run: runApply},
 		"list":      {summary: "List Firefox instances (install + profile) found on this machine", run: runList},
-		"diff":      {summary: "Show what apply would change, without writing anything", run: notImplemented("milestone 4")},
+		"diff":      {summary: "Show what apply would change, without writing anything", run: runDiff},
 		"paths":     {summary: "Show the folders foxtrainer uses", run: runPaths},
 		"catalogue": {summary: "Check the catalogue, or show the prefs a set of answers produces (check | show)", run: runCatalogue},
 		"version":   {summary: "Print the foxtrainer version", run: runVersion, setupFree: true},

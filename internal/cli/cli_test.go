@@ -69,8 +69,8 @@ func TestPathsPrintsResolvedFolders(test *testing.T) {
 }
 
 func TestUnimplementedCommandsSayWhen(test *testing.T) {
-	exitCode, _, stderr := runWith([]string{"apply"}, map[string]string{"HOME": "/home/fox"})
-	if exitCode != ExitError || !strings.Contains(stderr, "milestone 4") {
+	exitCode, _, stderr := runWith([]string{"configure"}, map[string]string{"HOME": "/home/fox"})
+	if exitCode != ExitError || !strings.Contains(stderr, "milestone 5") {
 		test.Errorf("got exit %d, stderr %q", exitCode, stderr)
 	}
 

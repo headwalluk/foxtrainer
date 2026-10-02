@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -61,7 +62,12 @@ func (store Store) Fetch(ctx context.Context, pin Pin, fileName string) (Fetched
 	}
 
 	if store.Offline {
-		return Fetched{}, fmt.Errorf("%s %s: not cached and offline: %w", pin.SourceID, fileName, cacheError)
+		reason := "the cached copy does not match its pinned sha256"
+		if errors.Is(cacheError, fs.ErrNotExist) {
+			reason = "not downloaded yet; run once without --offline"
+		}
+
+		return Fetched{}, fmt.Errorf("%s %s: %s", pin.SourceID, fileName, reason)
 	}
 
 	downloaded, downloadError := store.download(ctx, fileURL)

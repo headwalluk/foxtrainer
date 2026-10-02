@@ -10,6 +10,9 @@ import (
 const (
 	appDirName = "foxtrainer"
 
+	// firefoxAppID is Firefox's application ID, used to name per-application extension folders.
+	firefoxAppID = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
+
 	// AnswersFileName is the file holding the user's saved answers, inside ConfigDir.
 	AnswersFileName = "config.toml"
 )
@@ -37,6 +40,7 @@ type Paths struct {
 
 	InstallSearchPatterns []string // globs for Firefox install folders
 	ExecutableDirs        []string // PATH entries, searched for firefox* launchers
+	ScopedExtensionDirs   []string // user- and system-scope extension folders for Firefox
 }
 
 // Resolve builds Paths for environment, returning warnings and every problem found.
@@ -123,6 +127,12 @@ func (resolver *resolver) xdg() Paths {
 			filepath.Join(homeDir, ".mozilla", "firefox"),
 			filepath.Join(configHome, "mozilla", "firefox"),
 		},
+		ScopedExtensionDirs: []string{
+			filepath.Join(homeDir, ".mozilla", "extensions", firefoxAppID),
+			filepath.Join("/usr/lib/mozilla/extensions", firefoxAppID),
+			filepath.Join("/usr/lib64/mozilla/extensions", firefoxAppID),
+			filepath.Join("/usr/share/mozilla/extensions", firefoxAppID),
+		},
 		// Mozilla/distro packages, then tarballs in common places; see docs/how-it-works.md.
 		InstallSearchPatterns: []string{
 			"/usr/lib/firefox*",
@@ -144,6 +154,10 @@ func (resolver *resolver) darwin() Paths {
 		CacheDir:     filepath.Join(homeDir, "Library", "Caches", appDirName),
 		StateDir:     filepath.Join(applicationSupport, appDirName, "state"),
 		FirefoxRoots: []string{filepath.Join(applicationSupport, "Firefox")},
+		ScopedExtensionDirs: []string{
+			filepath.Join(applicationSupport, "Mozilla", "Extensions", firefoxAppID),
+			filepath.Join("/Library/Application Support/Mozilla/Extensions", firefoxAppID),
+		},
 	}
 }
 

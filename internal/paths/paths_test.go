@@ -23,6 +23,12 @@ func TestResolveLinuxDefaults(test *testing.T) {
 			"/usr/lib/firefox*", "/usr/lib64/firefox*", "/opt/firefox*",
 			"/home/fox/firefox*", "/home/fox/.local/opt/firefox*",
 		},
+		ScopedExtensionDirs: []string{
+			"/home/fox/.mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}",
+			"/usr/lib/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}",
+			"/usr/lib64/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}",
+			"/usr/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}",
+		},
 	}
 
 	if !reflect.DeepEqual(resolved, want) {

@@ -22,13 +22,24 @@ $ go install github.com/headwalluk/foxtrainer/cmd/foxtrainer@latest
 ## First run
 
 ```console
-$ foxtrainer configure
+$ foxtrainer list                                   # find your instances
+$ foxtrainer configure --profile dev-edition-default-1 --feel balanced --ai off
+$ foxtrainer diff                                   # see exactly what would change
+$ foxtrainer apply                                  # close Firefox first
 ```
 
-1. Choose the **instance** (Firefox install + profile) to configure.
-2. Optionally start from another instance's answers.
-3. Answer the questions: overall feel, AI features, privacy, HTTPS-only, language and spelling.
-4. Review the summary, then apply or just save.
+`configure` saves answers for one instance (Firefox install + profile). Answers you don't pass
+keep their saved value, or the defaults: feel `balanced`, AI `off`, privacy `strict`, HTTPS-only
+on, and languages from your locale. An interactive wizard is on its way; flags will keep working
+for scripts.
+
+| Flag | Values |
+|---|---|
+| `--feel` | `lean`, `balanced`, `full` |
+| `--ai` | `off` (blocks every AI feature, including translations), `local` (blocks cloud AI only), `all` |
+| `--privacy` | `standard`, `strict` (`hardened` is coming) |
+| `--https-only` | `true`, `false` |
+| `--languages` | e.g. `en-GB,en` |
 
 ## Everyday use
 
@@ -39,7 +50,8 @@ $ foxtrainer apply
 ```
 
 `apply` rebuilds the configuration for every configured instance from your saved answers and the
-latest catalogue, and tells you what changed. Use `foxtrainer diff` to preview without writing.
+current catalogue, and reports what changed. `foxtrainer diff` (or `apply --dry-run`) previews it
+without writing anything. Add `--offline` to use only previously downloaded upstream files.
 
 ## Where foxtrainer keeps things
 

@@ -107,3 +107,39 @@ func Save(path string, file File) error {
 
 	return fsutil.WriteFileAtomic(path, buffer.Bytes(), 0o600)
 }
+
+// Find returns the saved answers for an install + profile pair.
+func (file *File) Find(installPath, profilePath string) (Instance, bool) {
+	var found Instance
+
+	matched := false
+
+	for _, instance := range file.Instances {
+		if instance.InstallPath == installPath && instance.ProfilePath == profilePath {
+			found = instance
+			matched = true
+
+			break
+		}
+	}
+
+	return found, matched
+}
+
+// Upsert stores answers for an instance, replacing any earlier answers for the same install + profile.
+func (file *File) Upsert(updated Instance) {
+	replaced := false
+
+	for index := range file.Instances {
+		if file.Instances[index].InstallPath == updated.InstallPath && file.Instances[index].ProfilePath == updated.ProfilePath {
+			file.Instances[index] = updated
+			replaced = true
+
+			break
+		}
+	}
+
+	if !replaced {
+		file.Instances = append(file.Instances, updated)
+	}
+}

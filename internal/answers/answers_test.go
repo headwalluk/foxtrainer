@@ -80,3 +80,24 @@ func TestLoadRejectsUnknownKeysAndSchema(test *testing.T) {
 		}
 	}
 }
+
+func TestFindAndUpsert(test *testing.T) {
+	var file File
+
+	file.Upsert(Instance{InstallPath: "/a", ProfilePath: "/p1", Answers: Answers{Feel: "lean"}})
+	file.Upsert(Instance{InstallPath: "/a", ProfilePath: "/p2", Answers: Answers{Feel: "full"}})
+	file.Upsert(Instance{InstallPath: "/a", ProfilePath: "/p1", Answers: Answers{Feel: "balanced"}})
+
+	if len(file.Instances) != 2 {
+		test.Fatalf("want 2 instances, got %d", len(file.Instances))
+	}
+
+	found, matched := file.Find("/a", "/p1")
+	if !matched || found.Answers.Feel != "balanced" {
+		test.Errorf("got %+v, %v", found, matched)
+	}
+
+	if _, missing := file.Find("/b", "/p1"); missing {
+		test.Error("a different install is a different instance")
+	}
+}

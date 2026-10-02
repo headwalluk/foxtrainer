@@ -34,3 +34,6 @@ func ProbeLock(profileDir string) (LockState, error) {
 
 	return state, probeError
 }
+
+// ErrProfileInUse means Firefox (or another process) holds the profile lock.
+var ErrProfileInUse = errors.New("profile is in use")

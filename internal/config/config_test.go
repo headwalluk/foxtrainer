@@ -68,3 +68,22 @@ func TestLoadUsesUserProfileOnWindows(test *testing.T) {
 		test.Errorf("unexpected error: %v", loadError)
 	}
 }
+
+func TestLocaleLanguages(test *testing.T) {
+	cases := []struct {
+		allValue, messagesValue, langValue string
+		want                               []string
+	}{
+		{"", "", "en_GB.UTF-8", []string{"en-GB", "en"}},
+		{"fr_CA.UTF-8", "", "en_GB.UTF-8", []string{"fr-CA", "fr"}},
+		{"C", "de_DE@euro", "", []string{"de-DE", "de"}},
+		{"", "", "", nil},
+	}
+
+	for _, testCase := range cases {
+		got := localeLanguages(testCase.allValue, testCase.messagesValue, testCase.langValue)
+		if strings.Join(got, ",") != strings.Join(testCase.want, ",") {
+			test.Errorf("%+v: got %v", testCase, got)
+		}
+	}
+}

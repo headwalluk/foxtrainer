@@ -1,6 +1,6 @@
 id          = "feel.new-tab"
 title       = "A quiet new tab page"
-description = "No stories, no weather and no default shortcuts on the new tab page; your own shortcuts stay."
+description = "No stories, no weather and no shortcuts on the new tab page; just the search box."
 when        = { feel = ["lean", "balanced"] }
 
 [[pick]]
@@ -11,7 +11,11 @@ prefs  = [
   "browser.newtabpage.activity-stream.default.sites",
 ]
 
-# The weather widget fetches through its own feed; turning the feed off stops the requests.
+# Firefox 158's redesigned new tab toggles weather with widgets.weather.enabled; older pages use
+# showWeather. The feed switch stops the weather requests themselves.
+# feeds.topsites is the Customize panel's "Shortcuts" toggle.
 [prefs]
-"browser.newtabpage.activity-stream.showWeather"       = false
-"browser.newtabpage.activity-stream.feeds.weatherfeed" = false
+"browser.newtabpage.activity-stream.widgets.weather.enabled" = false
+"browser.newtabpage.activity-stream.showWeather"             = false
+"browser.newtabpage.activity-stream.feeds.weatherfeed"       = false
+"browser.newtabpage.activity-stream.feeds.topsites"          = false

@@ -11,3 +11,16 @@ var errLockProbeUnsupported = errors.New("profile lock detection is not implemen
 func probeProfileLock(string) (LockState, error) {
 	return LockState{}, errLockProbeUnsupported
 }
+
+// ProfileLock is not yet implemented on Windows.
+type ProfileLock struct{}
+
+// AcquireLock is not yet implemented on Windows.
+func AcquireLock(string) (*ProfileLock, error) {
+	return nil, errLockProbeUnsupported
+}
+
+// Release is not yet implemented on Windows.
+func (lock *ProfileLock) Release() error {
+	return errLockProbeUnsupported
+}

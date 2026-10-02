@@ -3,6 +3,7 @@ version = "2"
 
 [run]
 go = "1.26"
+build-tags = ["e2e"]
 
 [linters]
 default = "standard" # errcheck, govet, ineffassign, staticcheck, unused

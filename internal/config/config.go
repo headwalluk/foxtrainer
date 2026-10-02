@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 
 	"github.com/headwalluk/foxtrainer/internal/logger"
 	"github.com/headwalluk/foxtrainer/internal/paths"
@@ -19,9 +20,10 @@ type LookupFunc func(name string) (string, bool)
 
 // Config is foxtrainer's runtime configuration, resolved once at start-up.
 type Config struct {
-	LogLevel logger.Level
-	Paths    paths.Paths
-	Warnings []string // non-fatal problems to log once a logger exists
+	LogLevel  logger.Level
+	Paths     paths.Paths
+	Languages []string // preferred languages from the locale (LC_ALL, LC_MESSAGES, LANG), as BCP 47 tags
+	Warnings  []string // non-fatal problems to log once a logger exists
 }
 
 // FromEnvironment loads Config from the process environment.
@@ -68,7 +70,12 @@ func Load(lookup LookupFunc, operatingSystem string) (Config, error) {
 		problems = append(problems, pathsError)
 	}
 
-	loaded := Config{LogLevel: logLevel, Paths: resolvedPaths, Warnings: warnings}
+	loaded := Config{
+		LogLevel:  logLevel,
+		Paths:     resolvedPaths,
+		Languages: localeLanguages(value("LC_ALL"), value("LC_MESSAGES"), value("LANG")),
+		Warnings:  warnings,
+	}
 
 	var loadError error
 	if len(problems) > 0 {
@@ -76,4 +83,29 @@ func Load(lookup LookupFunc, operatingSystem string) (Config, error) {
 	}
 
 	return loaded, loadError
+}
+
+// localeLanguages turns the first set POSIX locale (e.g. en_GB.UTF-8) into BCP 47 tags: ["en-GB", "en"].
+func localeLanguages(candidates ...string) []string {
+	var languages []string
+
+	for _, candidate := range candidates {
+		localeName, _, _ := strings.Cut(candidate, ".")
+		localeName, _, _ = strings.Cut(localeName, "@")
+
+		if localeName == "" || localeName == "C" || localeName == "POSIX" {
+			continue
+		}
+
+		tag := strings.ReplaceAll(localeName, "_", "-")
+		languages = append(languages, tag)
+
+		if primary, _, hasRegion := strings.Cut(tag, "-"); hasRegion {
+			languages = append(languages, primary)
+		}
+
+		break
+	}
+
+	return languages
 }

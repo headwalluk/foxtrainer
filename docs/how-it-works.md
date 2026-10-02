@@ -99,9 +99,33 @@ set of answers produces, and where each one came from.
 
 ## What `apply` does to a profile
 
-1. Refuses to continue if Firefox is using the profile, and locks it for the duration.
-2. Backs up `user.js` and `prefs.js`.
-3. Writes a new `user.js` containing the prefs for your answers, with a header listing sources and versions.
-4. Removes from `prefs.js` any pref that foxtrainer set previously but no longer manages. Firefox
-   keeps old values there otherwise. Prefs foxtrainer never set are left alone.
-5. Records what it wrote in a per-instance manifest.
+For every configured instance, `apply` first works everything out without writing (this is
+also exactly what `foxtrainer diff` and `apply --dry-run` show), then:
+
+1. **Refuses if Firefox is using the profile,** and otherwise takes Firefox's own profile lock
+   for the whole apply, so Firefox can't start on the profile part-way through.
+2. **Backs up** `user.js` and `prefs.js` to the state folder, keeping the last 10 backups per
+   instance. Nothing is backed up or written when there is nothing to change.
+3. **Writes `user.js`:** a header naming the instance, your answers, the catalogue version and
+   each upstream source with its licence, then one commented block per group. Each pref is
+   annotated with where its value came from (e.g. `// betterfox user.js:123`). The output is
+   deterministic, so re-applying unchanged answers leaves the file alone. A symlinked `user.js`
+   is never replaced.
+4. **Resets prefs foxtrainer no longer sets.** Firefox copies `user.js` values into `prefs.js`
+   and keeps them there, even after they leave `user.js`. foxtrainer records every pref it
+   writes in a per-instance manifest, and removes from `prefs.js` exactly the ones it set before
+   but no longer sets, so Firefox's default comes back. Prefs foxtrainer never set are left alone.
+5. **Replacing a `user.js` foxtrainer didn't write** (e.g. a hand-installed Betterfox) backs it
+   up first. The prefs it had set stay in `prefs.js` unless you add `--reset-previous`.
+
+If user- or system-wide extensions are installed (e.g. Debian's `webext-*` packages), the strict
+privacy pref `extensions.enabledScopes` is left out, because it would disable them.
+
+### Where foxtrainer keeps its state
+
+| What | Linux (default) |
+|---|---|
+| Your answers | `~/.config/foxtrainer/config.toml` |
+| Per-instance manifests | `~/.local/state/foxtrainer/instances/<profile>-<id>.toml` |
+| Backups | `~/.local/state/foxtrainer/backups/<profile>-<id>/<timestamp>/` |
+| Downloaded upstream files | `~/.cache/foxtrainer/sources/<source>/<commit>/` |

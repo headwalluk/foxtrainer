@@ -4,6 +4,8 @@ package firefox
 
 import (
 	"bufio"
+	"bytes"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -100,5 +102,76 @@ func TestProbeLockWithoutLockFile(test *testing.T) {
 	state, probeError := ProbeLock(test.TempDir())
 	if probeError != nil || state != (LockState{}) {
 		test.Errorf("got %+v, %v; want zero state", state, probeError)
+	}
+}
+
+func TestAcquireLockBlocksAnotherProcessAndIsSeenByProbe(test *testing.T) {
+	profileDir := test.TempDir()
+	writeTestFile(test, filepath.Join(profileDir, ".parentlock"), "keep me")
+
+	lock, acquireError := AcquireLock(profileDir)
+	if acquireError != nil {
+		test.Fatal(acquireError)
+	}
+
+	// A second process must see the lock; our own process never sees its own POSIX locks.
+	helper := exec.CommandContext(test.Context(), os.Args[0], "-test.run=^TestHelperProcessHoldsLock$", "--", filepath.Join(profileDir, ".parentlock"))
+
+	output, helperError := helper.CombinedOutput()
+	if helperError == nil || bytes.Contains(output, []byte("locked")) {
+		test.Errorf("helper should fail to lock while we hold it: %v %s", helperError, output)
+	}
+
+	if releaseError := lock.Release(); releaseError != nil {
+		test.Fatal(releaseError)
+	}
+
+	// Read only after releasing: opening and closing any descriptor on the file would drop our lock.
+	content, readError := os.ReadFile(filepath.Join(profileDir, ".parentlock"))
+	if readError != nil || string(content) != "keep me" {
+		test.Errorf(".parentlock must not be truncated: %q, %v", content, readError)
+	}
+
+	state, probeError := ProbeLock(profileDir)
+	if probeError != nil || state.InUse {
+		test.Errorf("after release: %+v, %v", state, probeError)
+	}
+}
+
+func TestAcquireLockFailsWhileFirefoxHoldsIt(test *testing.T) {
+	profileDir := test.TempDir()
+
+	helper := exec.CommandContext(test.Context(), os.Args[0], "-test.run=^TestHelperProcessHoldsLock$", "--", filepath.Join(profileDir, ".parentlock"))
+
+	helperInput, inputError := helper.StdinPipe()
+	if inputError != nil {
+		test.Fatal(inputError)
+	}
+
+	helperOutput, outputError := helper.StdoutPipe()
+	if outputError != nil {
+		test.Fatal(outputError)
+	}
+
+	if startError := helper.Start(); startError != nil {
+		test.Fatal(startError)
+	}
+
+	if readyLine, readError := bufio.NewReader(helperOutput).ReadString('\n'); readError != nil || readyLine != "locked\n" {
+		test.Fatalf("helper did not lock: %q, %v", readyLine, readError)
+	}
+
+	_, acquireError := AcquireLock(profileDir)
+
+	if closeError := helperInput.Close(); closeError != nil {
+		test.Error(closeError)
+	}
+
+	if waitError := helper.Wait(); waitError != nil {
+		test.Error(waitError)
+	}
+
+	if !errors.Is(acquireError, ErrProfileInUse) {
+		test.Errorf("want ErrProfileInUse, got %v", acquireError)
 	}
 }

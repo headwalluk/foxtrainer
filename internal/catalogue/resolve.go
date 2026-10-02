@@ -49,9 +49,10 @@ type Generator func(chosen answers.Answers, target Target) ([]PlannedPref, []str
 
 // Plan is the resolved result: active groups with their prefs, plus notes for the user.
 type Plan struct {
-	Groups  []PlannedGroup
-	Skipped []PlannedPref // filtered out by version or platform
-	Notes   []string
+	CatalogueVersion string
+	Groups           []PlannedGroup
+	Skipped          []PlannedPref // filtered out by version or platform
+	Notes            []string
 }
 
 // Resolve selects the groups matching chosen and expands them into prefs for target.
@@ -59,7 +60,7 @@ type Plan struct {
 // Three passes: expand every active group, drop prefs that an overriding group replaces,
 // then keep the first group's copy of any pref two groups set to the same value.
 func Resolve(loaded Catalogue, upstream Upstream, chosen answers.Answers, target Target, generators map[string]Generator) (Plan, error) {
-	var plan Plan
+	plan := Plan{CatalogueVersion: loaded.CatalogueVersion}
 
 	var problems []error
 

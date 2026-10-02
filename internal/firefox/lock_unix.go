@@ -51,3 +51,41 @@ func probeProfileLock(profileDir string) (LockState, error) {
 
 	return state, probeError
 }
+
+// ProfileLock is a held Firefox profile lock; Firefox refuses to start on the profile while it is held.
+type ProfileLock struct {
+	file *os.File
+}
+
+// AcquireLock takes the profile's .parentlock write lock without blocking, failing if Firefox holds it.
+//
+// The file is opened without O_TRUNC, as Firefox does. Closing any descriptor on it drops the
+// process's POSIX locks, so it must be opened exactly once and released with Release.
+func AcquireLock(profileDir string) (*ProfileLock, error) {
+	lockPath := filepath.Join(profileDir, ".parentlock")
+
+	lockFile, openError := os.OpenFile(lockPath, os.O_RDWR|os.O_CREATE, 0o644)
+	if openError != nil {
+		return nil, fmt.Errorf("open %s: %w", lockPath, openError)
+	}
+
+	exclusive := syscall.Flock_t{Type: syscall.F_WRLCK, Whence: io.SeekStart}
+
+	lockError := syscall.FcntlFlock(lockFile.Fd(), syscall.F_SETLK, &exclusive)
+	if lockError == nil {
+		return &ProfileLock{file: lockFile}, nil
+	}
+
+	closeError := lockFile.Close()
+
+	if errors.Is(lockError, syscall.EAGAIN) || errors.Is(lockError, syscall.EACCES) {
+		lockError = ErrProfileInUse
+	}
+
+	return nil, errors.Join(fmt.Errorf("lock %s: %w", lockPath, lockError), closeError)
+}
+
+// Release drops the lock.
+func (lock *ProfileLock) Release() error {
+	return lock.file.Close()
+}

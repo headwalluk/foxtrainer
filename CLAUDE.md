@@ -33,7 +33,7 @@ re-applies everything after Firefox or upstream changes.
 
 ## Commands
 
-`make` (lint, race tests, build) · `make build` → `bin/foxtrainer` · `make test` · `make lint` · `make fmt`.
+`make` (lint, race tests, build) · `make build` → `bin/foxtrainer` · `make test` · `make e2e` · `make lint` · `make fmt`.
 Lint config is `.golangci.toml`; `make` must be clean before anything is ticked off in the tracker.
 
 ## Go conventions
@@ -80,6 +80,13 @@ These are the global preferences, as they apply in Go:
   Marionette (`--headless --marionette -remote-allow-system-access -no-remote --profile DIR`,
   with a non-default `marionette.port` in `user.js`).
 - **Never** run tests against the developer's real profiles in `~/.mozilla` or `~/.config/mozilla`.
+- `make e2e` (build tag `e2e`) runs the CLI against real headless Firefox in a fake `HOME`, with a
+  hermetic environment, and checks the values Firefox saved in `prefs.js`.
+- Marionette's automation prefs (`RecommendedPreferences.sys.mjs`) override some prefs under test,
+  e.g. `browser.ml.enable` and `browser.translations.enable`. Verify pref values from `prefs.js`
+  after a plain headless run, not over Marionette.
+- While holding the profile lock, never open `.parentlock` again: closing any descriptor on it
+  drops the process's POSIX lock.
 
 ## Versioning and commits
 
