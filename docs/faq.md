@@ -17,8 +17,10 @@ version of Firefox". Use one profile per install, and let foxtrainer apply the s
 
 Language packs translate Firefox's menus; they don't include a dictionary. Mozilla's Linux
 packages are US English builds plus a language pack, so the only built-in dictionary is en-US.
-foxtrainer's language and spelling question fixes this. On Linux it points Firefox at your
-system's hunspell dictionaries; elsewhere it installs the matching dictionary add-on.
+foxtrainer's language and spelling answer fixes this. On Linux it points Firefox at your
+system's hunspell dictionaries (install them with e.g. `sudo apt install hunspell-en-gb`). On
+macOS and Windows it will install the matching dictionary add-on. See
+[How it works](how-it-works.md#language-and-spelling).
 
 ### Will foxtrainer move my bookmarks between profiles?
 

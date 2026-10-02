@@ -22,16 +22,31 @@ $ go install github.com/headwalluk/foxtrainer/cmd/foxtrainer@latest
 ## First run
 
 ```console
-$ foxtrainer list                                   # find your instances
-$ foxtrainer configure --profile dev-edition-default-1 --feel balanced --ai off
-$ foxtrainer diff                                   # see exactly what would change
-$ foxtrainer apply                                  # close Firefox first
+$ foxtrainer configure
 ```
 
-`configure` saves answers for one instance (Firefox install + profile). Answers you don't pass
-keep their saved value, or the defaults: feel `balanced`, AI `off`, privacy `strict`, HTTPS-only
-on, and languages from your locale. An interactive wizard is on its way; flags will keep working
-for scripts.
+The wizard asks:
+
+1. **Which instance** (Firefox install + profile) to configure. Skipped when there's only one.
+2. **Where to start:** this instance's saved answers, a copy of another instance's, or the
+   recommended defaults. Skipped for a new instance when nothing else is configured.
+3. **Overall feel, AI features, privacy, HTTPS-only and languages.** Each is pre-filled; the
+   languages question lists the spellcheck dictionaries found on your system.
+4. **Review:** how many prefs would be written, added, changed or reset, then *Save and apply
+   now*, *Save only* or *Cancel*. Apply isn't offered while Firefox is running on that profile.
+
+`configure --accessible` asks the same questions as plain numbered prompts, for screen readers
+or for piping answers in. If the input runs out before the end, nothing is saved.
+
+For scripts, skip the wizard by passing the instance and answers as flags. Answers you don't pass
+keep their saved value, or the defaults (feel `balanced`, AI `off`, privacy `strict`,
+HTTPS-only on, languages from your locale):
+
+```console
+$ foxtrainer configure --profile dev-edition-default-1 --feel balanced --ai off
+$ foxtrainer diff      # see exactly what would change
+$ foxtrainer apply     # close Firefox first
+```
 
 | Flag | Values |
 |---|---|

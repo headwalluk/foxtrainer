@@ -51,18 +51,12 @@ func applyInstances(environment Environment, arguments []string, alwaysDryRun bo
 
 	inventory := discover(environment)
 
-	loaded, catalogueError := loadCatalogue(environment, *offline)
+	loaded, catalogueError := loadCatalogue(environment, *offline, false)
 	if catalogueError != nil {
 		return catalogueError
 	}
 
-	options := apply.Options{
-		StateDir:            environment.Config.Paths.StateDir,
-		ScopedExtensionDirs: environment.Config.Paths.ScopedExtensionDirs,
-		FoxtrainerVersion:   buildinfo.Version(),
-		Platform:            runtime.GOOS,
-		ResetPrevious:       *resetPrevious,
-	}
+	options := applyOptions(environment, *resetPrevious)
 
 	failures := 0
 
@@ -95,12 +89,7 @@ func applyOne(environment Environment, loaded loadedCatalogue, inventory firefox
 		return fmt.Errorf("%s is running (pid %d). Exit it first", label, lock.HolderPID)
 	}
 
-	target := apply.Target{
-		InstallDir: instance.Install.Dir, ProfileDir: instance.Profile.Profile.Dir,
-		Label: label, FirefoxMajor: instance.Install.MajorVersion,
-	}
-
-	prepared, prepareError := apply.Prepare(loaded.catalogue, loaded.upstream, target, configured.Answers, options)
+	prepared, prepareError := apply.Prepare(loaded.catalogue, loaded.upstream, targetFor(instance), configured.Answers, options)
 	if prepareError != nil {
 		return prepareError
 	}
@@ -196,5 +185,25 @@ func writeApplyNotes(report *strings.Builder, prepared apply.Prepared) {
 
 	if len(prepared.Leftovers) > 0 && !prepared.ResetsLeftovers() {
 		fmt.Fprintf(report, "  note: %d pref(s) set by the replaced user.js stay in prefs.js; add --reset-previous to reset them\n", len(prepared.Leftovers))
+	}
+}
+
+// applyOptions builds the apply options from the resolved configuration.
+func applyOptions(environment Environment, resetPrevious bool) apply.Options {
+	return apply.Options{
+		StateDir:            environment.Config.Paths.StateDir,
+		ScopedExtensionDirs: environment.Config.Paths.ScopedExtensionDirs,
+		FoxtrainerVersion:   buildinfo.Version(),
+		Platform:            runtime.GOOS,
+		ResetPrevious:       resetPrevious,
+		Generators:          generators(environment),
+	}
+}
+
+// targetFor describes a discovered instance as an apply target.
+func targetFor(instance firefox.Instance) apply.Target {
+	return apply.Target{
+		InstallDir: instance.Install.Dir, ProfileDir: instance.Profile.Profile.Dir,
+		Label: instanceLabel(instance), FirefoxMajor: instance.Install.MajorVersion,
 	}
 }

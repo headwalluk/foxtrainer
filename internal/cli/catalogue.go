@@ -11,6 +11,7 @@ import (
 	cataloguedata "github.com/headwalluk/foxtrainer/catalogue"
 	"github.com/headwalluk/foxtrainer/internal/answers"
 	"github.com/headwalluk/foxtrainer/internal/catalogue"
+	"github.com/headwalluk/foxtrainer/internal/language"
 	"github.com/headwalluk/foxtrainer/internal/sources"
 )
 
@@ -44,8 +45,8 @@ type loadedCatalogue struct {
 	upstream  catalogue.Upstream
 }
 
-// loadCatalogue loads the embedded catalogue and fetches its pinned upstream files, reporting progress.
-func loadCatalogue(environment Environment, offline bool) (loadedCatalogue, error) {
+// loadCatalogue loads the embedded catalogue and fetches its pinned upstream files, reporting progress unless quiet.
+func loadCatalogue(environment Environment, offline, quiet bool) (loadedCatalogue, error) {
 	loaded, loadError := catalogue.Load(cataloguedata.Files)
 	if loadError != nil {
 		return loadedCatalogue{}, fmt.Errorf("load catalogue: %w", loadError)
@@ -63,7 +64,12 @@ func loadCatalogue(environment Environment, offline bool) (loadedCatalogue, erro
 			origin = "cached"
 		}
 
-		environment.Logger.Infof("Definitions from %s %s: %s (%s)", source.Title, source.Tag, file.File, origin)
+		announce := environment.Logger.Infof
+		if quiet {
+			announce = environment.Logger.Debugf
+		}
+
+		announce("Definitions from %s %s: %s (%s)", source.Title, source.Tag, file.File, origin)
 	}
 
 	return loadedCatalogue{catalogue: loaded, upstream: upstream}, fetchError
@@ -79,7 +85,7 @@ func runCatalogueCheck(environment Environment, arguments []string) error {
 		return parseError
 	}
 
-	loaded, loadError := loadCatalogue(environment, *offline)
+	loaded, loadError := loadCatalogue(environment, *offline, false)
 	if loadError != nil {
 		return loadError
 	}
@@ -111,6 +117,7 @@ func runCatalogueShow(environment Environment, arguments []string) error {
 	flags.StringVar(&chosen.AI, "ai", "off", "off | local | all")
 	flags.StringVar(&chosen.Privacy, "privacy", "strict", "standard | strict | hardened")
 	flags.BoolVar(&chosen.HTTPSOnly, "https-only", true, "HTTPS-Only mode")
+	languages := flags.String("languages", strings.Join(defaultAnswers(environment).Languages, ","), "comma-separated language tags")
 	firefoxMajor := flags.Int("firefox", 0, "Firefox major version to target (0 = no version filtering)")
 	offline := flags.Bool("offline", false, "use cached upstream files only")
 
@@ -118,14 +125,16 @@ func runCatalogueShow(environment Environment, arguments []string) error {
 		return parseError
 	}
 
-	loaded, loadError := loadCatalogue(environment, *offline)
+	chosen.Languages = splitList(*languages)
+
+	loaded, loadError := loadCatalogue(environment, *offline, false)
 	if loadError != nil {
 		return loadError
 	}
 
 	target := catalogue.Target{FirefoxMajor: *firefoxMajor, Platform: runtime.GOOS}
 
-	plan, resolveError := catalogue.Resolve(loaded.catalogue, loaded.upstream, chosen, target, nil)
+	plan, resolveError := catalogue.Resolve(loaded.catalogue, loaded.upstream, chosen, target, generators(environment))
 	if resolveError != nil {
 		return resolveError
 	}
@@ -197,4 +206,11 @@ func originLabel(origin catalogue.Origin) string {
 	}
 
 	return label
+}
+
+// generators returns the code-backed group generators, configured from the resolved paths.
+func generators(environment Environment) map[string]catalogue.Generator {
+	languageGenerator := language.Generator{HunspellDirs: environment.Config.Paths.HunspellDirs}
+
+	return map[string]catalogue.Generator{"language": languageGenerator.Generate}
 }

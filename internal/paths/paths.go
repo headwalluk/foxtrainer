@@ -41,6 +41,7 @@ type Paths struct {
 	InstallSearchPatterns []string // globs for Firefox install folders
 	ExecutableDirs        []string // PATH entries, searched for firefox* launchers
 	ScopedExtensionDirs   []string // user- and system-scope extension folders for Firefox
+	HunspellDirs          []string // system spellcheck dictionary folders, most preferred first
 }
 
 // Resolve builds Paths for environment, returning warnings and every problem found.
@@ -127,6 +128,7 @@ func (resolver *resolver) xdg() Paths {
 			filepath.Join(homeDir, ".mozilla", "firefox"),
 			filepath.Join(configHome, "mozilla", "firefox"),
 		},
+		HunspellDirs: []string{"/usr/share/hunspell", "/usr/share/myspell/dicts"},
 		ScopedExtensionDirs: []string{
 			filepath.Join(homeDir, ".mozilla", "extensions", firefoxAppID),
 			filepath.Join("/usr/lib/mozilla/extensions", firefoxAppID),

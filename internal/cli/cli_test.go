@@ -3,7 +3,6 @@ package cli
 import (
 	"bytes"
 	"context"
-	"errors"
 	"strings"
 	"testing"
 
@@ -22,7 +21,7 @@ func runWith(arguments []string, values map[string]string) (int, string, string)
 		}, "linux")
 	}
 
-	exitCode := Run(context.Background(), arguments, loadConfig, &stdout, &stderr)
+	exitCode := Run(context.Background(), arguments, loadConfig, strings.NewReader(""), &stdout, &stderr)
 
 	return exitCode, stdout.String(), stderr.String()
 }
@@ -68,13 +67,9 @@ func TestPathsPrintsResolvedFolders(test *testing.T) {
 	}
 }
 
-func TestUnimplementedCommandsSayWhen(test *testing.T) {
+func TestConfigureWithoutTerminalExplainsTheOptions(test *testing.T) {
 	exitCode, _, stderr := runWith([]string{"configure"}, map[string]string{"HOME": "/home/fox"})
-	if exitCode != ExitError || !strings.Contains(stderr, "milestone 5") {
+	if exitCode != ExitError || !strings.Contains(stderr, "--accessible") || !strings.Contains(stderr, "--profile") {
 		test.Errorf("got exit %d, stderr %q", exitCode, stderr)
-	}
-
-	if !errors.Is(notImplemented("x")(Environment{}, nil), errNotImplemented) {
-		test.Error("notImplemented should wrap errNotImplemented")
 	}
 }

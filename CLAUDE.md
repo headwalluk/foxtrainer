@@ -85,6 +85,11 @@ These are the global preferences, as they apply in Go:
 - Marionette's automation prefs (`RecommendedPreferences.sys.mjs`) override some prefs under test,
   e.g. `browser.ml.enable` and `browser.translations.enable`. Verify pref values from `prefs.js`
   after a plain headless run, not over Marionette.
+- The interactive wizard must be checked in a real terminal; piped tests only cover `--accessible`.
+  Drive it in a detached tmux session of your own (never the user's panes):
+  `tmux new-session -d -s foxtrainer-wizard-test -x 110 -y 30 "env HOME=<fake> bin/foxtrainer configure"`,
+  then `tmux send-keys -t foxtrainer-wizard-test Down` / `Enter` and `tmux capture-pane -p -t …`.
+  Interactive forms must be given the terminal itself as input, never a wrapper reader.
 - While holding the profile lock, never open `.parentlock` again: closing any descriptor on it
   drops the process's POSIX lock.
 

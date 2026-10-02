@@ -3,7 +3,6 @@ package cli
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"sort"
@@ -21,13 +20,11 @@ const (
 	ExitUsage = 2
 )
 
-// errNotImplemented marks commands whose milestone has not landed yet.
-var errNotImplemented = errors.New("not implemented yet")
-
 // Environment is what a command needs to run.
 type Environment struct {
 	Context context.Context
 	Config  config.Config
+	Stdin   io.Reader
 	Logger  *logger.Logger
 	Stdout  io.Writer
 	Stderr  io.Writer
@@ -43,7 +40,7 @@ type command struct {
 // allCommands lists every subcommand by name; a function rather than a var to avoid an init cycle via runHelp.
 func allCommands() map[string]command {
 	return map[string]command{
-		"configure": {summary: "Choose an instance and save answers for it (--profile NAME --feel … --ai … --privacy …)", run: runConfigure},
+		"configure": {summary: "Answer a few questions for an instance (interactive), or pass --profile and answer flags", run: runConfigure},
 		"apply":     {summary: "Rebuild and write user.js for every configured instance (--dry-run, --offline)", run: runApply},
 		"list":      {summary: "List Firefox instances (install + profile) found on this machine", run: runList},
 		"diff":      {summary: "Show what apply would change, without writing anything", run: runDiff},
@@ -55,7 +52,7 @@ func allCommands() map[string]command {
 }
 
 // Run executes the command line in arguments (without the program name) and returns an exit code.
-func Run(ctx context.Context, arguments []string, loadConfig func() (config.Config, error), stdout, stderr io.Writer) int {
+func Run(ctx context.Context, arguments []string, loadConfig func() (config.Config, error), stdin io.Reader, stdout, stderr io.Writer) int {
 	commandName := "help"
 	if len(arguments) > 0 {
 		commandName = arguments[0]
@@ -76,7 +73,7 @@ func Run(ctx context.Context, arguments []string, loadConfig func() (config.Conf
 		return ExitUsage
 	}
 
-	environment := Environment{Context: ctx, Stdout: stdout, Stderr: stderr, Logger: logger.New(logger.LevelInfo, stderr)}
+	environment := Environment{Context: ctx, Stdin: stdin, Stdout: stdout, Stderr: stderr, Logger: logger.New(logger.LevelInfo, stderr)}
 
 	exitCode := ExitOK
 
@@ -114,13 +111,6 @@ func Run(ctx context.Context, arguments []string, loadConfig func() (config.Conf
 func report(stderr io.Writer, format string, arguments ...any) {
 	// stderr is the last-resort channel; a failed write there has nowhere else to go.
 	_, _ = fmt.Fprintf(stderr, format, arguments...)
-}
-
-// notImplemented returns a run function that reports which milestone delivers the command.
-func notImplemented(milestone string) func(Environment, []string) error {
-	return func(Environment, []string) error {
-		return fmt.Errorf("%w (arrives in %s)", errNotImplemented, milestone)
-	}
 }
 
 // runVersion prints the build version.

@@ -97,6 +97,28 @@ really is built from Betterfox, with each pref traced to its file and line.
 `foxtrainer catalogue show --feel balanced --ai off --firefox 158` prints exactly which prefs a
 set of answers produces, and where each one came from.
 
+## Language and spelling
+
+Mozilla's own Linux builds (the tarball and the apt packages) are US-English builds. A language
+pack translates the menus but brings no dictionary, so spellchecking stays en-US even with,
+say, `firefox-devedition-l10n-en-gb` installed. (Mozilla's en-GB tarball differs: it bundles an
+en-GB dictionary inside its `omni.ja`.)
+
+foxtrainer's `language.spelling` group is generated from your chosen languages (`--languages
+en-GB,en`, defaulting to your locale):
+
+- `intl.accept_languages` tells websites which languages you prefer.
+- On Linux, foxtrainer looks for each language's hunspell dictionary (`en_GB.dic` and
+  `en_GB.aff`) in `/usr/share/hunspell` and `/usr/share/myspell/dicts`. It points
+  `spellchecker.dictionary_path` at that folder and selects the dictionaries it found with
+  `spellchecker.dictionary` (e.g. `en-GB`, or `en-GB,fr` for several).
+- A bare language next to a regional one (`en` beside `en-GB`) needs no dictionary of its own.
+- When a dictionary is missing, `diff` and `apply` name the package, e.g.
+  `sudo apt install hunspell-de-de`.
+
+macOS and Windows have no system hunspell dictionaries. There, foxtrainer will install Mozilla's
+dictionary add-on for the language instead (coming with macOS and Windows support).
+
 ## What `apply` does to a profile
 
 For every configured instance, `apply` first works everything out without writing (this is

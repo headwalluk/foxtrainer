@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"syscall"
 	"testing"
@@ -102,6 +103,13 @@ func (current *harness) runFirefox(test *testing.T, duration time.Duration, argu
 func (current *harness) foxtrainer(test *testing.T, arguments ...string) string {
 	test.Helper()
 
+	return current.foxtrainerWithInput(test, "", arguments...)
+}
+
+// foxtrainerWithInput runs the CLI with stdin set to input.
+func (current *harness) foxtrainerWithInput(test *testing.T, input string, arguments ...string) string {
+	test.Helper()
+
 	environment := map[string]string{"HOME": current.homeDir, "PATH": hermeticSearchPath}
 	loadConfig := func() (config.Config, error) {
 		return config.Load(func(name string) (string, bool) {
@@ -113,23 +121,30 @@ func (current *harness) foxtrainer(test *testing.T, arguments ...string) string 
 
 	var stdout, stderr bytes.Buffer
 
-	if exitCode := cli.Run(test.Context(), arguments, loadConfig, &stdout, &stderr); exitCode != cli.ExitOK {
+	if exitCode := cli.Run(test.Context(), arguments, loadConfig, strings.NewReader(input), &stdout, &stderr); exitCode != cli.ExitOK {
 		test.Fatalf("foxtrainer %v: exit %d\n%s%s", arguments, exitCode, stdout.String(), stderr.String())
 	}
 
 	return stdout.String()
 }
 
+// profileDir returns the e2e profile's folder.
+func (current *harness) profileDir(test *testing.T) string {
+	test.Helper()
+
+	matches, globError := filepath.Glob(filepath.Join(current.homeDir, ".config", "mozilla", "firefox", "*.e2e"))
+	if globError != nil || len(matches) != 1 {
+		test.Fatalf("find profile: %v %v", matches, globError)
+	}
+
+	return matches[0]
+}
+
 // prefsJS returns the user values Firefox saved in the profile's prefs.js.
 func (current *harness) prefsJS(test *testing.T) map[string]prefs.Value {
 	test.Helper()
 
-	matches, globError := filepath.Glob(filepath.Join(current.homeDir, ".config", "mozilla", "firefox", "*.e2e", "prefs.js"))
-	if globError != nil || len(matches) != 1 {
-		test.Fatalf("find prefs.js: %v %v", matches, globError)
-	}
-
-	content, readError := os.ReadFile(matches[0])
+	content, readError := os.ReadFile(filepath.Join(current.profileDir(test), "prefs.js"))
 	if readError != nil {
 		test.Fatal(readError)
 	}
@@ -193,5 +208,74 @@ func TestApplyThenFirefoxHonoursIt(test *testing.T) {
 
 	if afterSwitch["toolkit.telemetry.enabled"] != prefs.Bool(false) {
 		test.Error("telemetry must stay off after the AI switch")
+	}
+}
+
+// The problem this project started from: Mozilla's builds spellcheck only in en-US until pointed at system hunspell.
+func TestBritishEnglishSpellchecking(test *testing.T) {
+	if _, statError := os.Stat("/usr/share/hunspell/en_GB.dic"); statError != nil {
+		test.Skip("needs hunspell-en-gb installed")
+	}
+
+	current := newHarness(test)
+
+	current.foxtrainer(test, "configure", "--profile", "e2e", "--languages", "en-GB,en")
+	current.foxtrainer(test, "apply", "--offline")
+
+	var spelling struct {
+		Dictionaries []string `json:"dictionaries"`
+		Selected     string   `json:"selected"`
+		Accept       string   `json:"accept"`
+	}
+
+	current.withMarionette(test, func(client *marionette) {
+		client.script(test, `
+		  const engine = Cc["@mozilla.org/spellchecker/engine;1"].getService(Ci.mozISpellCheckingEngine);
+		  return { dictionaries: engine.getDictionaryList(),
+		           selected: Services.prefs.getCharPref("spellchecker.dictionary", ""),
+		           accept: Services.prefs.getCharPref("intl.accept_languages", "") };`, &spelling)
+	})
+
+	if !slices.Contains(spelling.Dictionaries, "en-GB") {
+		test.Errorf("Firefox's dictionaries %v do not include en-GB", spelling.Dictionaries)
+	}
+
+	if spelling.Selected != "en-GB" || spelling.Accept != "en-GB, en" {
+		test.Errorf("selected dictionary %q, accept-languages %q", spelling.Selected, spelling.Accept)
+	}
+}
+
+// The interactive path: answers piped into the accessible wizard, which saves and applies.
+func TestWizardSavesAndApplies(test *testing.T) {
+	current := newHarness(test)
+
+	// One unconfigured instance, so neither the instance nor the starting point is asked.
+	// Feel: lean (1). AI: local only (2). Privacy: strict (2). HTTPS-Only: no. Languages. Review: save and apply (1).
+	output := current.foxtrainerWithInput(test, "1\n2\n2\nn\nen-GB, en\n1\n", "configure", "--accessible")
+
+	if !strings.Contains(output, "Saved answers for") || !strings.Contains(output, "written (+") {
+		test.Fatalf("wizard output:\n%s", output)
+	}
+
+	current.runFirefox(test, 8*time.Second, "-P", "e2e")
+
+	saved := current.prefsJS(test)
+	expected := map[string]prefs.Value{
+		"browser.ai.control.sidebarChatbot": prefs.String("blocked"),
+		"startup.homepage_override_url":     prefs.String(""),
+		"browser.contentblocking.category":  prefs.String("strict"),
+		"intl.accept_languages":             prefs.String("en-GB, en"),
+	}
+
+	for name, want := range expected {
+		if got, found := saved[name]; !found || got != want {
+			test.Errorf("%s = %v (found %v), want %v", name, got, found, want)
+		}
+	}
+
+	for _, absent := range []string{"browser.ai.control.default", "dom.security.https_only_mode"} {
+		if value, found := saved[absent]; found {
+			test.Errorf("%s should not be set with AI local-only and HTTPS-Only off, got %v", absent, value)
+		}
 	}
 }

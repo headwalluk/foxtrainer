@@ -13,8 +13,8 @@ import (
 	"github.com/headwalluk/foxtrainer/internal/firefox"
 )
 
-// errWizardNotReady is returned by "configure" without flags until the interactive wizard lands.
-var errWizardNotReady = errors.New("the interactive wizard arrives in milestone 5; for now pass --profile and answer flags")
+// errNoTerminal is returned when the wizard is asked for but stdin is not a terminal.
+var errNoTerminal = errors.New("the configure wizard needs a terminal; pass --accessible for plain prompts, or --profile with answer flags")
 
 // runConfigure saves answers for one instance from flags; unset answers keep their saved or default value.
 func runConfigure(environment Environment, arguments []string) error {
@@ -28,13 +28,14 @@ func runConfigure(environment Environment, arguments []string) error {
 	privacy := flags.String("privacy", "", "standard | strict | hardened")
 	httpsOnly := flags.Bool("https-only", true, "HTTPS-Only mode")
 	languages := flags.String("languages", "", "comma-separated language tags, preferred first, e.g. en-GB,fr")
+	accessible := flags.Bool("accessible", false, "wizard: plain line-by-line prompts (screen readers, scripts)")
 
 	if parseError := flags.Parse(arguments); parseError != nil {
 		return parseError
 	}
 
 	if *profile == "" {
-		return errWizardNotReady
+		return runWizard(environment, *accessible)
 	}
 
 	inventory := discover(environment)

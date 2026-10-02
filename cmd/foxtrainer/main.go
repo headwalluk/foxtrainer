@@ -13,7 +13,7 @@ import (
 // main runs the CLI, cancelling on Ctrl-C, and exits with its status code.
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	exitCode := cli.Run(ctx, os.Args[1:], config.FromEnvironment, os.Stdout, os.Stderr)
+	exitCode := cli.Run(ctx, os.Args[1:], config.FromEnvironment, os.Stdin, os.Stdout, os.Stderr)
 
 	stop()
 	os.Exit(exitCode)
