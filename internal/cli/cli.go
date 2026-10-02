@@ -2,6 +2,7 @@
 package cli
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -25,10 +26,11 @@ var errNotImplemented = errors.New("not implemented yet")
 
 // Environment is what a command needs to run.
 type Environment struct {
-	Config config.Config
-	Logger *logger.Logger
-	Stdout io.Writer
-	Stderr io.Writer
+	Context context.Context
+	Config  config.Config
+	Logger  *logger.Logger
+	Stdout  io.Writer
+	Stderr  io.Writer
 }
 
 // command is one subcommand.
@@ -46,13 +48,14 @@ func allCommands() map[string]command {
 		"list":      {summary: "List Firefox instances (install + profile) found on this machine", run: runList},
 		"diff":      {summary: "Show what apply would change, without writing anything", run: notImplemented("milestone 4")},
 		"paths":     {summary: "Show the folders foxtrainer uses", run: runPaths},
+		"catalogue": {summary: "Check the catalogue, or show the prefs a set of answers produces (check | show)", run: runCatalogue},
 		"version":   {summary: "Print the foxtrainer version", run: runVersion, setupFree: true},
 		"help":      {summary: "Show this help", run: runHelp, setupFree: true},
 	}
 }
 
 // Run executes the command line in arguments (without the program name) and returns an exit code.
-func Run(arguments []string, loadConfig func() (config.Config, error), stdout, stderr io.Writer) int {
+func Run(ctx context.Context, arguments []string, loadConfig func() (config.Config, error), stdout, stderr io.Writer) int {
 	commandName := "help"
 	if len(arguments) > 0 {
 		commandName = arguments[0]
@@ -73,7 +76,7 @@ func Run(arguments []string, loadConfig func() (config.Config, error), stdout, s
 		return ExitUsage
 	}
 
-	environment := Environment{Stdout: stdout, Stderr: stderr, Logger: logger.New(logger.LevelInfo, stderr)}
+	environment := Environment{Context: ctx, Stdout: stdout, Stderr: stderr, Logger: logger.New(logger.LevelInfo, stderr)}
 
 	exitCode := ExitOK
 

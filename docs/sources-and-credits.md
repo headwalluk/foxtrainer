@@ -17,6 +17,25 @@ Each upstream file is pinned by **full git commit SHA** and **sha256**. foxtrain
 upstream project's latest commit straight into your browser. Moving to a new upstream version is
 a reviewed catalogue change, and `apply` tells you what it changed.
 
+Files are downloaded from `raw.githubusercontent.com` at the pinned commit and cached in
+foxtrainer's cache folder (`foxtrainer paths`). A cached copy is re-verified before every use.
+Content that doesn't match its sha256 is rejected and never cached.
+
+## How Betterfox files are read
+
+Betterfox's files are written for people, so foxtrainer reads them line by line:
+
+- `SECTION:` banners (e.g. `SECUREFOX`) and, in `user.js`, `/** NAME ***/` subsections
+  (e.g. `TELEMETRY`) give each pref its place.
+- `user_pref("name", value);` is an **active** pref: Betterfox sets it. `//user_pref(...)` is a
+  **commented-out** pref: optional, or documenting a value Firefox already uses (marked `DEFAULT`).
+- Values are bool, 32-bit int or string, in single or double quotes with backslash escapes.
+  Lines that look like prefs but don't parse (Betterfox's guides have a few) are recorded as
+  malformed and can never be picked.
+
+`user.js` is treated as Betterfox's recommendation; the guide files (such as `Peskyfox.js`)
+are a pool of optional prefs that groups may pick from.
+
 ## Not affiliated
 
 foxtrainer is an independent project. Its output is not Betterfox or arkenfox, and problems

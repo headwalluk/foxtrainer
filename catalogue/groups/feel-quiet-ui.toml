@@ -1,0 +1,43 @@
+id          = "feel.quiet-ui"
+title       = "A quieter interface"
+description = "No welcome or default-browser prompts, no notification requests from sites, no full-screen animation, and a tidier URL bar."
+when        = { feel = ["lean", "balanced"] }
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "PESKYFOX"
+subsection = "FULLSCREEN NOTICE"
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "PESKYFOX"
+subsection = "URL BAR"
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "PESKYFOX"
+subsection = "PDF"
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "PESKYFOX"
+subsection = "TAB BEHAVIOR"
+
+[[pick]]
+source = "betterfox"
+file   = "user.js"
+prefs  = [
+  "browser.shell.checkDefaultBrowser",
+  "browser.aboutConfig.showWarning",
+  "browser.startup.homepage_override.mstone",
+  "browser.aboutwelcome.enabled",
+  "browser.compactmode.show",
+  "browser.urlbar.trimHttps",
+  "browser.urlbar.untrimOnUserInteraction.featureGate",
+  "browser.urlbar.groupLabels.enabled",
+  "permissions.default.desktop-notification",
+]

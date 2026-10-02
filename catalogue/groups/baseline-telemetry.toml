@@ -1,0 +1,9 @@
+id          = "baseline.telemetry"
+title       = "Turn off telemetry"
+description = "Stops Firefox sending technical and usage data to Mozilla."
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "TELEMETRY"

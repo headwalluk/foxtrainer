@@ -1,0 +1,9 @@
+id          = "baseline.crash-reports"
+title       = "Turn off automatic crash reports"
+description = "Stops Firefox sending crash reports to Mozilla."
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "CRASH REPORTS"

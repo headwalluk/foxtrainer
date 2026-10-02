@@ -1,0 +1,38 @@
+id          = "privacy.essentials"
+title       = "Privacy and security essentials"
+description = "Safe at every privacy level: Global Privacy Control, safer TLS and certificate handling, punycode for look-alike domains, no scripting in PDFs."
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "SSL / TLS"
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "PASSWORDS"
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "VARIOUS"
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "PESKYFOX"
+subsection = "DOWNLOADS"
+
+[[pick]]
+source = "betterfox"
+file   = "user.js"
+prefs  = [
+  "privacy.globalprivacycontrol.enabled",
+  "privacy.antitracking.isolateContentScriptResources",
+  "security.csp.reporting.enabled",
+  "browser.search.separatePrivateDefault.ui.enabled",
+  "network.IDN_show_punycode",
+]

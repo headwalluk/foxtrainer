@@ -1,0 +1,20 @@
+id          = "feel.lean-extras"
+title       = "Lean extras"
+description = "Further trimming from Betterfox's guide: no What's New page after updates, fewer URL bar extras and no new-tab wallpapers or highlights."
+when        = { feel = ["lean"] }
+
+[[pick]]
+source = "betterfox"
+file   = "Peskyfox.js"
+prefs  = [
+  "startup.homepage_override_url",
+  "browser.urlbar.quickactions.enabled",
+  "browser.urlbar.suggest.trending",
+  "browser.urlbar.addons.featureGate",
+  "browser.urlbar.mdn.featureGate",
+  "browser.urlbar.wikipedia.featureGate",
+  "browser.urlbar.recentsearches.featureGate",
+  "browser.newtabpage.activity-stream.newtabWallpapers.enabled",
+  "browser.newtabpage.activity-stream.section.highlights.includeDownloads",
+  "browser.newtabpage.activity-stream.section.highlights.includeVisited",
+]

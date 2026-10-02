@@ -1,0 +1,65 @@
+# foxtrainer catalogue: sources, pins and excluded upstream prefs.
+# Groups live in groups/*.toml. Design: docs/how-it-works.md ("The catalogue").
+
+schema_version    = 1
+catalogue_version = "2026.10.0"
+
+[sources.betterfox]
+format     = "betterfox"
+title      = "Betterfox"
+repository = "https://github.com/yokoffing/Betterfox"
+licence    = "MIT"
+copyright  = "Copyright (c) 2020 yokoffing"
+tag        = "154.0"
+commit     = "067172a4b0dc90e78e5b8b94d9abfe6430c6a7be"
+raw_url    = "https://raw.githubusercontent.com/yokoffing/Betterfox/{commit}/{file}"
+coverage   = ["user.js"] # every active pref in these files must be used by a group or excluded below
+
+[sources.betterfox.files]
+"user.js"     = "38a971c7b15225987baf26dd98b884bfb114531b4f6a8f2e0e281fb0352d5240"
+"Peskyfox.js" = "170adc9e50c7c873eb246107dfbab3dc6f5b1cda5c5f4c1f23a6e2806eae50f0"
+
+[[excluded]]
+source = "betterfox"
+pref   = "browser.profiles.enabled"
+reason = "Profile-group state; foxtrainer never writes browser.profiles.*."
+
+[[excluded]]
+source = "betterfox"
+pref   = "toolkit.legacyUserProfileCustomizations.stylesheets"
+reason = "Only useful with a hand-written userChrome.css."
+
+[[excluded]]
+source = "betterfox"
+pref   = "browser.privateWindowSeparation.enabled"
+reason = "Windows-only taskbar behaviour; revisit with Windows support."
+
+[[excluded]]
+source = "betterfox"
+pref   = "browser.ai.control.default"
+reason = "Set by foxtrainer's ai.* groups, which cover Mozilla's whole AI bundle."
+
+[[excluded]]
+source = "betterfox"
+pref   = "browser.ml.enable"
+reason = "Set by foxtrainer's ai.* groups."
+
+[[excluded]]
+source = "betterfox"
+pref   = "browser.ml.chat.enabled"
+reason = "Set by foxtrainer's ai.* groups."
+
+[[excluded]]
+source = "betterfox"
+pref   = "browser.ml.chat.menu"
+reason = "Set by foxtrainer's ai.* groups."
+
+[[excluded]]
+source = "betterfox"
+pref   = "browser.tabs.groups.smart.enabled"
+reason = "Set by foxtrainer's ai.* groups."
+
+[[excluded]]
+source = "betterfox"
+pref   = "browser.ml.linkPreview.enabled"
+reason = "Set by foxtrainer's ai.* groups."

@@ -1,0 +1,58 @@
+id          = "privacy.strict"
+title       = "Strict privacy"
+description = "Strict tracking protection, nothing cached to disk, no speculative connections, no search suggestions, and a private geolocation provider. Occasionally a site needs an exception."
+when        = { privacy = ["strict", "hardened"] }
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "DISK AVOIDANCE"
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "SHUTDOWN & SANITIZING"
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "SPECULATIVE LOADING"
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "EXTENSIONS"
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "HEADERS / REFERERS"
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "SAFE BROWSING"
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "MOZILLA"
+exclude    = ["permissions.default.desktop-notification"]
+
+[[pick]]
+source = "betterfox"
+file   = "user.js"
+prefs  = [
+  "browser.contentblocking.category",
+  "browser.download.start_downloads_in_tmp_dir",
+  "security.OCSP.enabled",
+  "browser.search.suggest.enabled",
+  "browser.formfill.enable",
+]

@@ -1,0 +1,26 @@
+id          = "baseline.sponsored"
+title       = "No sponsored content"
+description = "Stops Firefox downloading and showing sponsored stories, sponsored shortcuts and sponsored suggestions."
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "PESKYFOX"
+subsection = "NEW TAB PAGE"
+exclude    = [
+  "browser.newtabpage.activity-stream.default.sites",
+  "browser.newtabpage.activity-stream.feeds.section.topstories",
+]
+
+[[pick]]
+source = "betterfox"
+file   = "user.js"
+prefs  = ["browser.urlbar.quicksuggest.enabled"]
+
+# Sponsored stories and tiles are only fetched while showSponsored / showSponsoredTopSites are
+# true (DiscoveryStreamFeed and TopSitesFeed in Firefox 158); these stop the remaining paths.
+[prefs]
+"browser.topsites.contile.enabled"                       = false
+"browser.urlbar.suggest.quicksuggest.sponsored"          = false
+"browser.urlbar.amp.featureGate"                         = false
+"browser.newtabpage.activity-stream.feeds.adsfeed"       = false

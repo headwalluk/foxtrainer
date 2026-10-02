@@ -62,6 +62,41 @@ The catalogue maps answers to **groups**, and groups to prefs. Groups come from 
 (Betterfox, arkenfox) at a pinned version, plus groups foxtrainer maintains itself (such as AI
 controls and language and spelling). See [Sources and credits](sources-and-credits.md).
 
+The catalogue lives in [`catalogue/`](../catalogue) and is compiled into the binary:
+
+- `catalogue.toml` pins each upstream source (full commit SHA plus a sha256 per file), records
+  the licence and copyright for attribution, and lists upstream prefs deliberately left out,
+  each with a reason.
+- `groups/*.toml` has one group per file. A group has a title and description, a `when` table
+  saying which answers switch it on (e.g. `when = { feel = ["lean", "balanced"] }`), and its prefs:
+  - `[[include]]`: every active pref in an upstream section or subsection, minus an optional
+    `exclude` list;
+  - `[[pick]]`: named prefs from an upstream file, including optional (commented-out) ones;
+  - `[prefs]`: values given directly, optionally limited by Firefox version
+    (`{ value = "blocked", since = 150 }`) or platform.
+- A group with `generator = "…"` has prefs computed in code, such as language and spelling,
+  which depends on your chosen languages and the dictionaries on your system.
+
+Values from upstream are read from the pinned upstream files at apply time, so the configuration
+really is built from Betterfox, with each pref traced to its file and line.
+
+### Rules the catalogue checker enforces
+
+`foxtrainer catalogue check` (also run by the test suite) rejects a catalogue unless:
+
+- **Every active pref in Betterfox's `user.js` is used by exactly one group or excluded with a
+  reason.** When the Betterfox pin moves, any new or changed pref fails the check until someone
+  decides where it belongs.
+- **No two groups that can be active together set the same pref to different values,** unless
+  one explicitly declares `overrides = ["other.group"]`.
+- **Nothing writes `browser.profiles.*` or `toolkit.profiles.*`.** Those prefs record
+  profile-group membership, and a wrong value can move a profile into another group.
+- A pick names a pref that appears exactly once, so Betterfox's "alternative" values can't be
+  picked by accident, and every `when` answer, source, file and section exists.
+
+`foxtrainer catalogue show --feel balanced --ai off --firefox 158` prints exactly which prefs a
+set of answers produces, and where each one came from.
+
 ## What `apply` does to a profile
 
 1. Refuses to continue if Firefox is using the profile, and locks it for the duration.

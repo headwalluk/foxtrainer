@@ -1,0 +1,30 @@
+id          = "ai.block-all"
+title       = "Block all AI features"
+description = "Blocks every AI feature, on-device and cloud, including translations. Mirrors the prefs Mozilla's own AIControls policy sets. The AI Controls settings pane stays visible so you can see and undo it."
+when        = { ai = ["off"] }
+
+[prefs]
+"browser.ai.control.default"              = { value = "blocked", since = 148 }
+"browser.ai.control.translations"         = { value = "blocked", since = 148 }
+"browser.ai.control.pdfjsAltText"         = { value = "blocked", since = 148 }
+"browser.ai.control.smartTabGroups"       = { value = "blocked", since = 148 }
+"browser.ai.control.linkPreviewKeyPoints" = { value = "blocked", since = 148 }
+"browser.ai.control.sidebarChatbot"       = { value = "blocked", since = 148 }
+"browser.ai.control.smartWindow"          = { value = "blocked", since = 150 }
+"browser.ai.control.speechRecognition"    = { value = "blocked", since = 157 }
+"browser.ml.enable"                       = false
+"extensions.ml.enabled"                   = false
+"browser.ml.chat.enabled"                 = false
+"browser.ml.chat.menu"                    = false
+"browser.ml.chat.page"                    = false
+"browser.ml.chat.sidebar"                 = false
+"browser.ml.chat.shortcuts"               = false
+"browser.ml.linkPreview.enabled"          = false
+"browser.tabs.groups.smart.enabled"       = false
+"browser.tabs.groups.smart.userEnabled"   = false
+"pdfjs.enableAltText"                     = false
+"pdfjs.enableGuessAltText"                = false
+"pdfjs.enableAltTextModelDownload"        = false
+"browser.smartwindow.enabled"             = { value = false, since = 150 }
+"media.webspeech.recognition.enable"      = false
+"browser.translations.enable"             = false

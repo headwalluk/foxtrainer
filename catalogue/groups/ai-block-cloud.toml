@@ -1,0 +1,14 @@
+id          = "ai.block-cloud"
+title       = "Block cloud AI features"
+description = "Blocks the AI chatbot sidebar and Smart Window, which send data to online services. On-device features such as translations stay available."
+when        = { ai = ["local"] }
+
+[prefs]
+"browser.ai.control.sidebarChatbot" = { value = "blocked", since = 148 }
+"browser.ai.control.smartWindow"    = { value = "blocked", since = 150 }
+"browser.ml.chat.enabled"           = false
+"browser.ml.chat.menu"              = false
+"browser.ml.chat.page"              = false
+"browser.ml.chat.sidebar"           = false
+"browser.ml.chat.shortcuts"         = false
+"browser.smartwindow.enabled"       = { value = false, since = 150 }

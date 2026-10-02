@@ -1,0 +1,8 @@
+id          = "feel.performance"
+title       = "Performance tuning"
+description = "Betterfox's caching, rendering and networking tweaks. Invisible apart from speed."
+
+[[include]]
+source  = "betterfox"
+file    = "user.js"
+section = "FASTFOX"

@@ -1,0 +1,4 @@
+id          = "language.spelling"
+title       = "Language and spelling"
+description = "Spellchecks in your language and tells websites which languages you prefer."
+generator   = "language"

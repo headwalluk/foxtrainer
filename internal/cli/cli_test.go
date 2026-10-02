@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"strings"
 	"testing"
@@ -21,7 +22,7 @@ func runWith(arguments []string, values map[string]string) (int, string, string)
 		}, "linux")
 	}
 
-	exitCode := Run(arguments, loadConfig, &stdout, &stderr)
+	exitCode := Run(context.Background(), arguments, loadConfig, &stdout, &stderr)
 
 	return exitCode, stdout.String(), stderr.String()
 }

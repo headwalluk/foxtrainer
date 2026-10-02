@@ -21,3 +21,5 @@ jobs:
           version: v2.14.0
       - run: go test -race ./...
       - run: make build
+      - name: Check the catalogue against live pinned upstream files
+        run: ./bin/foxtrainer catalogue check

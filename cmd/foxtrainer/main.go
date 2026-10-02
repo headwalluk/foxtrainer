@@ -2,13 +2,19 @@
 package main
 
 import (
+	"context"
 	"os"
+	"os/signal"
 
 	"github.com/headwalluk/foxtrainer/internal/cli"
 	"github.com/headwalluk/foxtrainer/internal/config"
 )
 
-// main runs the CLI and exits with its status code.
+// main runs the CLI, cancelling on Ctrl-C, and exits with its status code.
 func main() {
-	os.Exit(cli.Run(os.Args[1:], config.FromEnvironment, os.Stdout, os.Stderr))
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	exitCode := cli.Run(ctx, os.Args[1:], config.FromEnvironment, os.Stdout, os.Stderr)
+
+	stop()
+	os.Exit(exitCode)
 }

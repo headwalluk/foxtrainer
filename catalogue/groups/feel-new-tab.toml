@@ -1,0 +1,17 @@
+id          = "feel.new-tab"
+title       = "A quiet new tab page"
+description = "No stories, no weather and no default shortcuts on the new tab page; your own shortcuts stay."
+when        = { feel = ["lean", "balanced"] }
+
+[[pick]]
+source = "betterfox"
+file   = "user.js"
+prefs  = [
+  "browser.newtabpage.activity-stream.feeds.section.topstories",
+  "browser.newtabpage.activity-stream.default.sites",
+]
+
+# The weather widget fetches through its own feed; turning the feed off stops the requests.
+[prefs]
+"browser.newtabpage.activity-stream.showWeather"       = false
+"browser.newtabpage.activity-stream.feeds.weatherfeed" = false

@@ -1,0 +1,9 @@
+id          = "baseline.experiments"
+title       = "Turn off studies and remote experiments"
+description = "Stops Mozilla running studies and switching features on remotely between releases."
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "EXPERIMENTS"

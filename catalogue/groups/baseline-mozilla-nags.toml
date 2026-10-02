@@ -1,0 +1,21 @@
+id          = "baseline.mozilla-nags"
+title       = "No marketing from Mozilla"
+description = "Removes extension and feature recommendations, the 'More from Mozilla' page and guided tours."
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "PESKYFOX"
+subsection = "MOZILLA UI"
+exclude    = [
+  "browser.shell.checkDefaultBrowser",
+  "browser.aboutConfig.showWarning",
+  "browser.startup.homepage_override.mstone",
+  "browser.aboutwelcome.enabled",
+  "browser.profiles.enabled",
+]
+
+[[pick]]
+source = "betterfox"
+file   = "user.js"
+prefs  = ["browser.uitour.enabled"]

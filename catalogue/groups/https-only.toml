@@ -1,0 +1,10 @@
+id          = "https.only"
+title       = "HTTPS-Only mode"
+description = "Refuses insecure http:// connections unless you allow a site. Firefox Sync syncs this setting between devices."
+when        = { https_only = [true] }
+
+[[include]]
+source     = "betterfox"
+file       = "user.js"
+section    = "SECUREFOX"
+subsection = "HTTPS-ONLY MODE"

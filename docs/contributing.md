@@ -23,6 +23,13 @@ $ make fmt
 | `internal/answers/` | Loading and saving `config.toml` |
 | `internal/logger/` | Levelled logging |
 | `internal/fsutil/` | Atomic file writes and other filesystem helpers |
+| `catalogue/` | The catalogue data (`catalogue.toml`, `groups/*.toml`), compiled into the binary |
+| `internal/catalogue/` | Loading, checking and resolving the catalogue |
+| `internal/sources/` | Downloading and verifying pinned upstream files; `betterfox/` reads Betterfox's format |
+| `internal/prefs/` | Pref values and the `user_pref(...)` tokeniser |
+| `internal/firefox/` | Firefox installs, profiles, locks and the install hash |
+| `internal/cityhash/` | CityHash64 v1.0, as Mozilla uses for install hashes |
+| `testdata/upstream/` | Pinned upstream files used by the tests (MIT; see THIRD-PARTY-NOTICES.md) |
 | `docs/` | User and developer documentation |
 
 ## Code conventions
@@ -41,6 +48,16 @@ The linter enforces most of these (`.golangci.toml`):
 - **Comments:** a one-line doc comment per function saying what it does; inline comments only
   where the mechanism is non-obvious. Design rationale lives in these docs.
 - **Formats:** TOML for data and config. No YAML, except where a tool requires it (GitHub Actions).
+
+## Changing the catalogue
+
+1. Edit `catalogue/groups/*.toml` (see [How it works](how-it-works.md#the-catalogue)).
+2. Run `foxtrainer catalogue check` and `make test`. Both must pass.
+3. Use `foxtrainer catalogue show` with different answers to see the effect.
+
+To move an upstream pin, update `commit`, `tag` and the sha256 of each file in
+`catalogue.toml`, copy the new files into `testdata/upstream/`, and resolve whatever the checker
+reports. That's usually new prefs needing a home.
 
 ## Testing
 
