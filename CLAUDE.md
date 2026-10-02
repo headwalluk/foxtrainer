@@ -62,7 +62,7 @@ These are the global preferences, as they apply in Go:
 ## Firefox safety rules
 
 - Never modify a profile while Firefox holds it. The in-use check is a non-blocking `fcntl`
-  lock on `.parentlock`; the `lock` symlink is only a hint, because stale ones exist. Hold the
+  lock on `.parentlock`; ignore the `lock` symlink (Firefox 158 leaves it even after a clean exit). Hold the
   lock for the whole apply.
 - Editing `profiles.ini` or `installs.ini` requires **every** Firefox using that root to be closed.
 - Back up before writing; write atomically with mode 0600.

@@ -43,7 +43,7 @@ func allCommands() map[string]command {
 	return map[string]command{
 		"configure": {summary: "Choose an instance and answer a few questions about how Firefox should behave", run: notImplemented("milestone 5")},
 		"apply":     {summary: "Rebuild and write user.js for every configured instance", run: notImplemented("milestone 4")},
-		"list":      {summary: "List Firefox instances (install + profile) found on this machine", run: notImplemented("milestone 2")},
+		"list":      {summary: "List Firefox instances (install + profile) found on this machine", run: runList},
 		"diff":      {summary: "Show what apply would change, without writing anything", run: notImplemented("milestone 4")},
 		"paths":     {summary: "Show the folders foxtrainer uses", run: runPaths},
 		"version":   {summary: "Print the foxtrainer version", run: runVersion, setupFree: true},

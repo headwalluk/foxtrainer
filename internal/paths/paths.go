@@ -23,15 +23,20 @@ type Environment struct {
 	XDGStateHome    string
 	AppData         string // Windows APPDATA
 	LocalAppData    string // Windows LOCALAPPDATA
+	SearchPath      string // PATH, used to find firefox* launchers
 }
 
 // Paths holds every filesystem location foxtrainer uses.
 type Paths struct {
+	HomeDir      string   // the user's home, used to shorten paths for display
 	ConfigDir    string   // saved answers
 	AnswersFile  string   // ConfigDir/config.toml
 	CacheDir     string   // downloaded upstream files and indexes
 	StateDir     string   // per-instance manifests and backups
 	FirefoxRoots []string // candidate folders holding profiles.ini, most likely first
+
+	InstallSearchPatterns []string // globs for Firefox install folders
+	ExecutableDirs        []string // PATH entries, searched for firefox* launchers
 }
 
 // Resolve builds Paths for environment, returning warnings and every problem found.
@@ -51,7 +56,9 @@ func Resolve(environment Environment) (Paths, []string, error) {
 		resolver.fail("unsupported operating system %q", environment.OperatingSystem)
 	}
 
+	resolved.HomeDir = environment.HomeDir
 	resolved.AnswersFile = filepath.Join(resolved.ConfigDir, AnswersFileName)
+	resolved.ExecutableDirs = searchPathDirs(environment.SearchPath)
 
 	return resolved, resolver.warnings, errors.Join(resolver.problems...)
 }
@@ -116,6 +123,14 @@ func (resolver *resolver) xdg() Paths {
 			filepath.Join(homeDir, ".mozilla", "firefox"),
 			filepath.Join(configHome, "mozilla", "firefox"),
 		},
+		// Mozilla/distro packages, then tarballs in common places; see docs/how-it-works.md.
+		InstallSearchPatterns: []string{
+			"/usr/lib/firefox*",
+			"/usr/lib64/firefox*",
+			"/opt/firefox*",
+			filepath.Join(homeDir, "firefox*"),
+			filepath.Join(homeDir, ".local", "opt", "firefox*"),
+		},
 	}
 }
 
@@ -151,4 +166,17 @@ func (resolver *resolver) windows() Paths {
 		StateDir:     filepath.Join(localAppData, appDirName, "state"),
 		FirefoxRoots: []string{filepath.Join(appData, "Mozilla", "Firefox")},
 	}
+}
+
+// searchPathDirs splits PATH into absolute directories, dropping empty and relative entries.
+func searchPathDirs(searchPath string) []string {
+	var dirs []string
+
+	for _, entry := range filepath.SplitList(searchPath) {
+		if filepath.IsAbs(entry) {
+			dirs = append(dirs, entry)
+		}
+	}
+
+	return dirs
 }

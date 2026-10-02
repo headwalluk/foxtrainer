@@ -23,6 +23,33 @@ after switching from a tarball to a distro package.
 
 All Firefox channels share one root per user; `installs.ini` records which profile each install uses.
 
+### How installs are found
+
+On Linux, foxtrainer looks in:
+
+- Mozilla and distro package folders: `/usr/lib/firefox*` and `/usr/lib64/firefox*`
+- Common tarball locations: `/opt/firefox*`, `~/firefox*` and `~/.local/opt/firefox*`
+- Wherever a `firefox*` launcher on your `PATH` points, e.g. `/usr/bin/firefox-devedition` → `/usr/lib/firefox-devedition`
+- Every install folder a profile was last run from, recorded in its `compatibility.ini`
+
+A folder counts as an install when it has an `application.ini` with a version. The channel
+(release, beta, Developer Edition, Nightly, ESR) comes from `defaults/pref/channel-prefs.js`,
+falling back to `update-settings.ini`, then the source repository named in `application.ini`.
+
+### The install hash
+
+Firefox names each install's section in `profiles.ini` `[Install<hash>]`. The hash is
+CityHash64, Mozilla's bundled v1.0, not the later v1.1. It is computed over the UTF-16LE bytes
+of the folder holding the Firefox executable, with symlinks resolved, and written as uppercase
+hex **without zero-padding**. So `/opt/firefox` hashes to the 15-digit `6AFDA46A1A8AD48`.
+
+### Is Firefox running?
+
+Firefox holds a POSIX `fcntl` write lock on `.parentlock` in the profile for as long as it runs.
+foxtrainer asks the kernel whether anyone holds that lock, without taking it. The `lock` symlink
+next to it (e.g. `lock -> 127.0.1.1:+3492142`) proves nothing on its own: Firefox 158 leaves it
+behind even after a clean exit. foxtrainer ignores it.
+
 ## Answers, not prefs
 
 foxtrainer saves your **answers** ("AI: off", "Privacy: strict"), not a list of prefs. Each

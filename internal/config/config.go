@@ -62,6 +62,7 @@ func Load(lookup LookupFunc, operatingSystem string) (Config, error) {
 		XDGStateHome:    value("XDG_STATE_HOME"),
 		AppData:         value("APPDATA"),
 		LocalAppData:    value("LOCALAPPDATA"),
+		SearchPath:      value("PATH"),
 	})
 	if pathsError != nil {
 		problems = append(problems, pathsError)

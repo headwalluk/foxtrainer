@@ -13,11 +13,16 @@ func TestResolveLinuxDefaults(test *testing.T) {
 	}
 
 	want := Paths{
+		HomeDir:      "/home/fox",
 		ConfigDir:    "/home/fox/.config/foxtrainer",
 		AnswersFile:  "/home/fox/.config/foxtrainer/config.toml",
 		CacheDir:     "/home/fox/.cache/foxtrainer",
 		StateDir:     "/home/fox/.local/state/foxtrainer",
 		FirefoxRoots: []string{"/home/fox/.mozilla/firefox", "/home/fox/.config/mozilla/firefox"},
+		InstallSearchPatterns: []string{
+			"/usr/lib/firefox*", "/usr/lib64/firefox*", "/opt/firefox*",
+			"/home/fox/firefox*", "/home/fox/.local/opt/firefox*",
+		},
 	}
 
 	if !reflect.DeepEqual(resolved, want) {
@@ -122,5 +127,21 @@ func TestResolveRejectsUnknownOperatingSystem(test *testing.T) {
 	_, _, resolveError := Resolve(Environment{OperatingSystem: "plan9", HomeDir: "/home/fox"})
 	if resolveError == nil || !strings.Contains(resolveError.Error(), "plan9") {
 		test.Errorf("want an unsupported OS error, got %v", resolveError)
+	}
+}
+
+func TestResolveSplitsSearchPathKeepingAbsoluteDirs(test *testing.T) {
+	resolved, _, resolveError := Resolve(Environment{
+		OperatingSystem: "linux",
+		HomeDir:         "/home/fox",
+		SearchPath:      "/usr/local/bin::relative/bin:/usr/bin",
+	})
+	if resolveError != nil {
+		test.Fatalf("unexpected error: %v", resolveError)
+	}
+
+	want := []string{"/usr/local/bin", "/usr/bin"}
+	if !reflect.DeepEqual(resolved.ExecutableDirs, want) {
+		test.Errorf("got %v, want %v", resolved.ExecutableDirs, want)
 	}
 }
