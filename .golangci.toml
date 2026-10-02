@@ -1,0 +1,66 @@
+# golangci-lint v2 configuration. Encodes the project conventions in CLAUDE.md where a linter can.
+version = "2"
+
+[run]
+go = "1.26"
+
+[linters]
+default = "standard" # errcheck, govet, ineffassign, staticcheck, unused
+enable = [
+  "varnamelen",     # no single-character or cryptic names
+  "forbidigo",      # environment access only in internal/config
+  "nakedret",       # no naked returns
+  "nonamedreturns", # explicit results keep single-exit flow readable
+  "revive",         # empty blocks and general style
+  "gocritic",
+  "errorlint",      # wrap and compare errors properly (%w, errors.Is/As)
+  "nilerr",         # returning nil after checking a non-nil error
+  "misspell",
+  "bodyclose",
+  "noctx",
+]
+
+[linters.settings.varnamelen]
+min-name-length = 3
+max-distance = 1
+check-receiver = true
+check-return = true
+check-type-param = true
+ignore-names = ["err", "ok", "id", "os", "ui"]
+
+[linters.settings.forbidigo]
+analyze-types = true
+
+[[linters.settings.forbidigo.forbid]]
+pattern = '^os\.(Getenv|LookupEnv|Environ|ExpandEnv|Setenv|Unsetenv|UserHomeDir|UserConfigDir|UserCacheDir)$'
+msg = "read the environment only in internal/config (see CLAUDE.md)"
+
+[linters.settings.misspell]
+locale = "UK"
+
+[linters.settings.revive]
+[[linters.settings.revive.rules]]
+name = "empty-block"
+[[linters.settings.revive.rules]]
+name = "exported"
+[[linters.settings.revive.rules]]
+name = "package-comments"
+[[linters.settings.revive.rules]]
+name = "error-return"
+[[linters.settings.revive.rules]]
+name = "unused-parameter"
+[[linters.settings.revive.rules]]
+name = "early-return"
+
+[linters.exclusions]
+generated = "strict"
+
+[[linters.exclusions.rules]]
+path = 'internal/config/'
+linters = ["forbidigo"]
+
+[formatters]
+enable = ["gofmt", "goimports"]
+
+[formatters.settings.goimports]
+local-prefixes = ["github.com/headwalluk/foxtrainer"]
