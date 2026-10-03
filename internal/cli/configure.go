@@ -25,7 +25,7 @@ func runConfigure(environment Environment, arguments []string) error {
 	install := flags.String("install", "", "install folder, when the profile is used by more than one install")
 	feel := flags.String("feel", "", "lean | balanced | full")
 	artificialIntelligence := flags.String("ai", "", "off | local | all")
-	privacy := flags.String("privacy", "", "standard | strict | hardened")
+	privacy := flags.String("privacy", "", "standard | strict")
 	httpsOnly := flags.Bool("https-only", true, "HTTPS-Only mode")
 	languages := flags.String("languages", "", "comma-separated language tags, preferred first, e.g. en-GB,fr")
 	accessible := flags.Bool("accessible", false, "wizard: plain line-by-line prompts (screen readers, scripts)")
@@ -88,7 +88,7 @@ func runConfigure(environment Environment, arguments []string) error {
 	return writeError
 }
 
-// defaultAnswers are the starting answers for a new instance (decisions E1–E7).
+// defaultAnswers are the starting answers for a new instance (docs/experience-levels.md).
 func defaultAnswers(environment Environment) answers.Answers {
 	languages := environment.Config.Languages
 	if len(languages) == 0 {
@@ -110,7 +110,7 @@ func validateAnswers(chosen answers.Answers) error {
 	}
 
 	if chosen.Privacy == "hardened" {
-		problems = append(problems, errors.New("--privacy hardened is coming soon (it needs the arkenfox reader); use strict for now"))
+		problems = append(problems, errors.New("--privacy hardened is not available yet; use strict"))
 	}
 
 	return errors.Join(problems...)

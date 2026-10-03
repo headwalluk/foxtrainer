@@ -1,6 +1,6 @@
 // Package catalogue loads, validates and resolves the catalogue that maps answers to groups to prefs.
 //
-// The design is documented in docs/how-it-works.md ("The catalogue").
+// The format is documented in docs/catalogue.md.
 package catalogue
 
 import (

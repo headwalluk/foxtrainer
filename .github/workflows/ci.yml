@@ -19,6 +19,7 @@ jobs:
       - uses: golangci/golangci-lint-action@v9
         with:
           version: v2.14.0
+      - run: shellcheck install.sh
       - run: go test -race ./...
       - run: make build
       - name: Check the catalogue against live pinned upstream files

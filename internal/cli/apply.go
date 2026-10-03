@@ -94,6 +94,11 @@ func applyOne(environment Environment, loaded loadedCatalogue, inventory firefox
 		return prepareError
 	}
 
+	if len(prepared.GroupShared) > 0 {
+		environment.Logger.Warnf("%s is in a Profile Group: %d group-wide pref(s) may be overridden by the group's shared store (recorded in the manifest when applied)",
+			label, len(prepared.GroupShared))
+	}
+
 	var report strings.Builder
 
 	if showOnly {
@@ -205,5 +210,6 @@ func targetFor(instance firefox.Instance) apply.Target {
 	return apply.Target{
 		InstallDir: instance.Install.Dir, ProfileDir: instance.Profile.Profile.Dir,
 		Label: instanceLabel(instance), FirefoxMajor: instance.Install.MajorVersion,
+		ProfileGroupID: instance.Profile.Profile.StoreID,
 	}
 }

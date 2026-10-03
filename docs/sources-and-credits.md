@@ -1,40 +1,26 @@
 # Sources and credits
 
-> **Draft.** The source list will be finalised with the first catalogue release.
-
 foxtrainer builds its configuration from these sources:
 
 | Source | Licence | How foxtrainer uses it |
 |---|---|---|
-| [Betterfox](https://github.com/yokoffing/Betterfox) by yokoffing | MIT | Performance, clutter and privacy prefs behind the Lean, Balanced and Full-fat levels |
-| [arkenfox user.js](https://github.com/arkenfox/user.js) | MIT | Additional hardening prefs behind the Hardened privacy level |
-| Mozilla Firefox source (`StaticPrefList.yaml`, `firefox.js`, …) | MPL-2.0 | Checks only: does a pref still exist in a given Firefox version |
-| foxtrainer's own groups | MIT | AI controls, language and spelling, and anything upstream doesn't cover |
+| [Betterfox](https://github.com/yokoffing/Betterfox) by yokoffing, `user.js` and `Peskyfox.js` | MIT | Telemetry, performance, clutter and privacy prefs behind the feel and privacy answers |
+| foxtrainer's own groups | MIT | AI controls, language and spelling, and the few prefs upstream doesn't cover (such as the rest of the sponsored-content and new tab switches) |
 
-## Pinning
+The catalogue in foxtrainer 1.0 pins Betterfox 154.0. `foxtrainer catalogue show` lists every
+pref with its source, and `catalogue/catalogue.toml` lists the Betterfox prefs deliberately left
+out, each with a reason.
 
-Each upstream file is pinned by **full git commit SHA** and **sha256**. foxtrainer never pulls an
-upstream project's latest commit straight into your browser. Moving to a new upstream version is
-a reviewed catalogue change, and `apply` tells you what it changed.
+[arkenfox user.js](https://github.com/arkenfox/user.js) (MIT) is credited in
+THIRD-PARTY-NOTICES.md, but no arkenfox prefs are in the 1.0 catalogue, and there is no
+Hardened privacy level built on it yet.
 
-Files are downloaded from `raw.githubusercontent.com` at the pinned commit and cached in
-foxtrainer's cache folder (`foxtrainer paths`). A cached copy is re-verified before every use.
-Content that doesn't match its sha256 is rejected and never cached.
+## Staying current
 
-## How Betterfox files are read
-
-Betterfox's files are written for people, so foxtrainer reads them line by line:
-
-- `SECTION:` banners (e.g. `SECUREFOX`) and, in `user.js`, `/** NAME ***/` subsections
-  (e.g. `TELEMETRY`) give each pref its place.
-- `user_pref("name", value);` is an **active** pref: Betterfox sets it. `//user_pref(...)` is a
-  **commented-out** pref: optional, or documenting a value Firefox already uses (marked `DEFAULT`).
-- Values are bool, 32-bit int or string, in single or double quotes with backslash escapes.
-  Lines that look like prefs but don't parse (Betterfox's guides have a few) are recorded as
-  malformed and can never be picked.
-
-`user.js` is treated as Betterfox's recommendation; the guide files (such as `Peskyfox.js`)
-are a pool of optional prefs that groups may pick from.
+foxtrainer uses a fixed, reviewed version of each upstream project, never whatever was published
+most recently. Moving to a newer Betterfox is a change in a foxtrainer release, and
+`foxtrainer diff` shows what it would change in your profiles before you apply it. How the
+versions are pinned and verified is in the [Security model](security-model.md#upstream-files).
 
 ## Not affiliated
 

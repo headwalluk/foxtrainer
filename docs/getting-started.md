@@ -1,23 +1,49 @@
 # Getting started
 
-> **Draft.** foxtrainer is in early development. This page will be completed when the first
-> usable release ships.
+Install the pre-built binary, answer a few questions, apply. To build foxtrainer yourself, or
+to run it on macOS, see [Compiling from source](compiling.md).
 
 ## Requirements
 
-- Linux or macOS. Windows support is not decided yet.
-- Firefox (release, ESR, Beta, Developer Edition or Nightly) that has been run at least once,
-  so it has a profile.
+- Linux on x86-64 or ARM64.
+- Firefox from Mozilla's apt repository, a distribution package or a Mozilla tarball: release,
+  ESR, Beta, Developer Edition or Nightly. Snap and Flatpak Firefox keep their profiles inside
+  the sandbox, and foxtrainer doesn't find them yet.
+- Firefox must have been run at least once, so it has a profile.
 
 ## Install
 
-Pre-built binaries will be published on the
-[releases page](https://github.com/headwalluk/foxtrainer/releases). Until then, build from source
-with Go 1.26 or later:
+foxtrainer is a single binary that runs as your own user. It doesn't need root.
+
+**Install script.** This downloads the latest release for your CPU, checks it against the
+release's `SHA256SUMS` and puts it in `~/.local/bin`:
 
 ```console
-$ go install github.com/headwalluk/foxtrainer/cmd/foxtrainer@latest
+$ curl -fsSL https://raw.githubusercontent.com/headwalluk/foxtrainer/main/install.sh | sh
 ```
+
+Set `FOXTRAINER_VERSION=v1.0.0` to install a particular release, or `FOXTRAINER_INSTALL_DIR` to
+install somewhere else. If the folder isn't on your `PATH`, the script prints the line to add to
+your shell profile. Run the same command again to upgrade.
+
+**By hand.** Download `foxtrainer_linux_amd64.tar.gz` (or `_arm64`) and `SHA256SUMS` from the
+[releases page](https://github.com/headwalluk/foxtrainer/releases), then:
+
+```console
+$ sha256sum --check --ignore-missing SHA256SUMS
+$ tar -xzf foxtrainer_linux_amd64.tar.gz
+$ install -m 0755 foxtrainer_linux_amd64/foxtrainer ~/.local/bin/
+```
+
+Check it works:
+
+```console
+$ foxtrainer version
+```
+
+**To uninstall,** delete the binary. To also remove your saved answers, downloaded sources and
+backups, delete the folders listed by `foxtrainer paths` (see below). The `user.js` foxtrainer
+wrote stays in each profile until you delete it.
 
 ## First run
 
@@ -52,7 +78,7 @@ $ foxtrainer apply     # close Firefox first
 |---|---|
 | `--feel` | `lean`, `balanced`, `full` |
 | `--ai` | `off` (blocks every AI feature, including translations), `local` (blocks cloud AI only), `all` |
-| `--privacy` | `standard`, `strict` (`hardened` is coming) |
+| `--privacy` | `standard`, `strict` |
 | `--https-only` | `true`, `false` |
 | `--languages` | e.g. `en-GB,en` |
 
@@ -72,10 +98,11 @@ without writing anything. Add `--offline` to use only previously downloaded upst
 
 Run `foxtrainer paths` to see the exact folders on your system.
 
-| What | Linux (default) | macOS |
-|---|---|---|
-| Your answers | `~/.config/foxtrainer/config.toml` | `~/Library/Application Support/foxtrainer/config.toml` |
-| Downloaded sources | `~/.cache/foxtrainer/` | `~/Library/Caches/foxtrainer/` |
-| Manifests and backups | `~/.local/state/foxtrainer/` | `~/Library/Application Support/foxtrainer/state/` |
+| What | Default folder |
+|---|---|
+| Your answers | `~/.config/foxtrainer/config.toml` |
+| Downloaded sources | `~/.cache/foxtrainer/` |
+| Manifests and backups | `~/.local/state/foxtrainer/` |
 
-On Linux, `XDG_CONFIG_HOME`, `XDG_CACHE_HOME` and `XDG_STATE_HOME` are honoured.
+`XDG_CONFIG_HOME`, `XDG_CACHE_HOME` and `XDG_STATE_HOME` are honoured. On macOS the folders are
+under `~/Library`; `foxtrainer paths` lists them.

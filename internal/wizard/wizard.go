@@ -133,7 +133,6 @@ func (wizard Wizard) AskQuestions(start answers.Answers, dictionaryHint string) 
 
 	privacy := huh.NewSelect[string]().
 		Title("Privacy").
-		Description("Hardened (arkenfox-based, breaks some sites) is coming soon.").
 		Options(
 			huh.NewOption("Standard: Firefox's protections, plus the essentials", "standard"),
 			huh.NewOption("Strict: stronger tracking protection, no disk cache; occasionally a site needs an exception (recommended)", "strict"),

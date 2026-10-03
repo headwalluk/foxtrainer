@@ -30,6 +30,8 @@ type Manifest struct {
 	AppliedAt        time.Time `toml:"applied_at"`
 	UserJSSHA256     string    `toml:"user_js_sha256"`
 	Managed          []string  `toml:"managed"` // every pref name foxtrainer currently owns in this profile
+	ProfileGroupID   string    `toml:"profile_group_id,omitempty"`
+	GroupShared      []string  `toml:"group_shared,omitempty"` // managed prefs the Profile Group store may override
 }
 
 // InstanceKey returns a stable, readable file-name key for a profile folder.

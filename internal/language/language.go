@@ -36,7 +36,7 @@ func (generator Generator) Generate(chosen answers.Answers, target catalogue.Tar
 	var notes []string
 
 	if target.Platform != "linux" {
-		notes = append(notes, "language and spelling: dictionary set-up on "+target.Platform+" arrives with macOS and Windows support")
+		notes = append(notes, "language and spelling: spellcheck dictionaries are set up on Linux only; on "+target.Platform+" only intl.accept_languages is set")
 
 		return planned, notes, nil
 	}

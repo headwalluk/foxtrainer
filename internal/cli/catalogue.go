@@ -115,7 +115,7 @@ func runCatalogueShow(environment Environment, arguments []string) error {
 	chosen := answers.Answers{}
 	flags.StringVar(&chosen.Feel, "feel", "balanced", "lean | balanced | full")
 	flags.StringVar(&chosen.AI, "ai", "off", "off | local | all")
-	flags.StringVar(&chosen.Privacy, "privacy", "strict", "standard | strict | hardened")
+	flags.StringVar(&chosen.Privacy, "privacy", "strict", "standard | strict")
 	flags.BoolVar(&chosen.HTTPSOnly, "https-only", true, "HTTPS-Only mode")
 	languages := flags.String("languages", strings.Join(defaultAnswers(environment).Languages, ","), "comma-separated language tags")
 	firefoxMajor := flags.Int("firefox", 0, "Firefox major version to target (0 = no version filtering)")
@@ -126,6 +126,10 @@ func runCatalogueShow(environment Environment, arguments []string) error {
 	}
 
 	chosen.Languages = splitList(*languages)
+
+	if validateError := validateAnswers(chosen); validateError != nil {
+		return validateError
+	}
 
 	loaded, loadError := loadCatalogue(environment, *offline, false)
 	if loadError != nil {

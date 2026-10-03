@@ -247,6 +247,39 @@ func TestApplyKeepsScopedExtensionsWorking(test *testing.T) {
 	}
 }
 
+func TestApplyRecordsProfileGroupSharedPrefs(test *testing.T) {
+	current := newFixture(test)
+
+	prepared, _ := current.prepareAndCommit(test, defaults())
+	if len(prepared.GroupShared) != 0 {
+		test.Errorf("ungrouped profile reported group-wide prefs: %v", prepared.GroupShared)
+	}
+
+	current.target.ProfileGroupID = "7f1ff9e3"
+	prepared, _ = current.prepareAndCommit(test, defaults())
+
+	if !slices.Contains(prepared.GroupShared, "datareporting.healthreport.uploadEnabled") {
+		test.Errorf("group-wide prefs: %v", prepared.GroupShared)
+	}
+
+	if slices.ContainsFunc(prepared.GroupShared, func(name string) bool { return !firefox.IsGroupSharedPref(name) }) {
+		test.Errorf("non-shared pref listed as group-wide: %v", prepared.GroupShared)
+	}
+
+	if !strings.Contains(strings.Join(prepared.Notes, "\n"), "Profile Group (store 7f1ff9e3)") {
+		test.Errorf("notes: %v", prepared.Notes)
+	}
+
+	manifest, loadError := LoadManifest(current.options.StateDir, current.target.ProfileDir)
+	if loadError != nil {
+		test.Fatal(loadError)
+	}
+
+	if manifest.ProfileGroupID != "7f1ff9e3" || !slices.Equal(manifest.GroupShared, prepared.GroupShared) {
+		test.Errorf("manifest group record: %q %v", manifest.ProfileGroupID, manifest.GroupShared)
+	}
+}
+
 func TestApplyRefusesSymlinkedUserJS(test *testing.T) {
 	current := newFixture(test)
 	realFile := filepath.Join(test.TempDir(), "dotfiles-user.js")

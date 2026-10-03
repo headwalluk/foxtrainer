@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.14.0
+      - run: shellcheck install.sh
+      - run: go test -race ./...
+      - name: Build release tarballs
+        run: make release VERSION="${GITHUB_REF_NAME#v}"
+      - name: Check the catalogue against live pinned upstream files
+        run: |
+          tar -xzf dist/foxtrainer_linux_amd64.tar.gz -C "${RUNNER_TEMP}"
+          "${RUNNER_TEMP}/foxtrainer_linux_amd64/foxtrainer" version
+          "${RUNNER_TEMP}/foxtrainer_linux_amd64/foxtrainer" catalogue check
+      - name: Publish the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" dist/* --verify-tag --title "foxtrainer ${GITHUB_REF_NAME}" --generate-notes

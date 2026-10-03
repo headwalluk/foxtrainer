@@ -123,7 +123,7 @@ func (resolver *resolver) xdg() Paths {
 		ConfigDir: filepath.Join(configHome, appDirName),
 		CacheDir:  filepath.Join(cacheHome, appDirName),
 		StateDir:  filepath.Join(stateHome, appDirName),
-		// Firefox 147+ uses the XDG root only when ~/.mozilla does not exist; see docs/how-it-works.md.
+		// Firefox 147+ uses the XDG root only when ~/.mozilla does not exist; see docs/architecture.md.
 		FirefoxRoots: []string{
 			filepath.Join(homeDir, ".mozilla", "firefox"),
 			filepath.Join(configHome, "mozilla", "firefox"),
@@ -135,7 +135,7 @@ func (resolver *resolver) xdg() Paths {
 			filepath.Join("/usr/lib64/mozilla/extensions", firefoxAppID),
 			filepath.Join("/usr/share/mozilla/extensions", firefoxAppID),
 		},
-		// Mozilla/distro packages, then tarballs in common places; see docs/how-it-works.md.
+		// Mozilla/distro packages, then tarballs in common places; see docs/architecture.md.
 		InstallSearchPatterns: []string{
 			"/usr/lib/firefox*",
 			"/usr/lib64/firefox*",

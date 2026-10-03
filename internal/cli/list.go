@@ -79,6 +79,10 @@ func instanceStatus(instance firefox.Instance) string {
 		parts = append(parts, "not the default profile (start with -P "+instance.Profile.Profile.Name+")")
 	}
 
+	if instance.Profile.Profile.StoreID != "" {
+		parts = append(parts, "in a Profile Group: some telemetry prefs are group-wide and may be overridden")
+	}
+
 	parts = append(parts, lockStatus(instance.Profile.Lock))
 
 	return strings.Join(parts, " · ")

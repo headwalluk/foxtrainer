@@ -20,7 +20,7 @@ func TestRenderInventory(test *testing.T) {
 			File: firefox.ProfilesFile{StraySections: []string{"6AFDA46A1A8AD48"}},
 			Profiles: []firefox.ProfileStatus{
 				{
-					Profile:     firefox.Profile{Name: "dev-edition-default-1", Dir: "/home/fox/.mozilla/firefox/new.dev-edition-default-1"},
+					Profile:     firefox.Profile{Name: "dev-edition-default-1", Dir: "/home/fox/.mozilla/firefox/new.dev-edition-default-1", StoreID: "7f1ff9e3"},
 					HasRun:      true,
 					LastInstall: &devEdition,
 					DefaultFor:  []firefox.Install{devEdition},
@@ -45,7 +45,7 @@ func TestRenderInventory(test *testing.T) {
 	for _, expected := range []string{
 		"● Firefox Developer Edition 158.0 › dev-edition-default-1",
 		"profile: ~/.mozilla/firefox/new.dev-edition-default-1",
-		"default profile · RUNNING (pid 4242): close Firefox before applying",
+		"default profile · in a Profile Group: some telemetry prefs are group-wide and may be overridden · RUNNING (pid 4242)",
 		"○ dev-edition-default  ~/.mozilla/firefox/old.dev-edition-default",
 		"last used by /opt/firefox (Firefox 157.0), which no longer exists",
 		"○ default  ~/.mozilla/firefox/stub.default  never started",

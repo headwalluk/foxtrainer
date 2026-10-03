@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"slices"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/headwalluk/foxtrainer/internal/answers"
@@ -20,7 +21,7 @@ import (
 	"github.com/headwalluk/foxtrainer/internal/prefs"
 )
 
-// enabledScopesPref blocks user- and system-scope extensions; see decision E6 in docs/how-it-works.md.
+// enabledScopesPref blocks user- and system-scope extensions; dropped when any exist (docs/architecture.md).
 const enabledScopesPref = "extensions.enabledScopes"
 
 // defaultKeepBackups is how many backups per instance are kept.
@@ -28,10 +29,11 @@ const defaultKeepBackups = 10
 
 // Target is the instance being configured.
 type Target struct {
-	InstallDir   string
-	ProfileDir   string
-	Label        string // e.g. "Firefox Developer Edition 158.0 › dev-edition-default-1"
-	FirefoxMajor int
+	InstallDir     string
+	ProfileDir     string
+	Label          string // e.g. "Firefox Developer Edition 158.0 › dev-edition-default-1"
+	FirefoxMajor   int
+	ProfileGroupID string // profiles.ini StoreID; set when the profile belongs to a Profile Group
 }
 
 // Options controls how plans are built and written.
@@ -65,6 +67,7 @@ type Prepared struct {
 	Removed        []string // in the current user.js but not the new one
 	ResetNames     []string // will be removed from prefs.js so Firefox's default returns
 	Leftovers      []string // set by a replaced, non-foxtrainer user.js; reset only with ResetPrevious
+	GroupShared    []string // planned prefs the Profile Group store overrides; see docs/architecture.md
 	Notes          []string
 	manifest       Manifest
 }
@@ -134,6 +137,7 @@ func Prepare(loaded catalogue.Catalogue, upstream catalogue.Upstream, target Tar
 
 	prepared.ExistingUserJS = existing
 	prepared.compare(options)
+	prepared.findGroupShared()
 
 	return prepared, nil
 }
@@ -191,6 +195,24 @@ func (prepared *Prepared) compare(options Options) {
 	}
 
 	sort.Strings(prepared.ResetNames)
+}
+
+// findGroupShared lists the planned prefs that a Profile Group's shared store overrides, with a note.
+func (prepared *Prepared) findGroupShared() {
+	if prepared.Target.ProfileGroupID == "" {
+		return
+	}
+
+	prepared.GroupShared = slices.DeleteFunc(plannedNames(prepared.Plan), func(name string) bool {
+		return !firefox.IsGroupSharedPref(name)
+	})
+	sort.Strings(prepared.GroupShared)
+
+	if len(prepared.GroupShared) > 0 {
+		prepared.Notes = append(prepared.Notes, fmt.Sprintf(
+			"this profile is in a Profile Group (store %s); Firefox may override %d group-wide pref(s) from the group's shared store: %s",
+			prepared.Target.ProfileGroupID, len(prepared.GroupShared), strings.Join(prepared.GroupShared, ", ")))
+	}
 }
 
 // keepScopedExtensionsWorking drops extensions.enabledScopes when user- or system-scope extensions exist.
@@ -304,6 +326,8 @@ func commitLocked(prepared Prepared, options Options) (Committed, error) {
 		AppliedAt:        now().UTC(),
 		UserJSSHA256:     hex.EncodeToString(digest[:]),
 		Managed:          managed,
+		ProfileGroupID:   prepared.Target.ProfileGroupID,
+		GroupShared:      prepared.GroupShared,
 	})
 
 	return committed, errors.Join(resetError, manifestError)

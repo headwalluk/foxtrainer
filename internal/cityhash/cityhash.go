@@ -1,7 +1,7 @@
 // Package cityhash implements CityHash64 v1.0.x, the version Mozilla bundles to hash Firefox install paths.
 //
 // It is not CityHash v1.1, which changed the algorithm. Port of Mozilla's
-// other-licenses/nsis/Contrib/CityHash/cityhash/city.cpp; see docs/how-it-works.md.
+// other-licenses/nsis/Contrib/CityHash/cityhash/city.cpp; see docs/architecture.md.
 package cityhash
 
 import (

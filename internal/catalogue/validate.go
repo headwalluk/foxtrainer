@@ -21,7 +21,7 @@ var Questions = map[string][]any{
 // KnownGenerators lists the generator names a group may declare.
 var KnownGenerators = []string{"language"}
 
-// forbiddenPrefixes are pref names foxtrainer never writes: profile-group state (docs/how-it-works.md).
+// forbiddenPrefixes are pref names foxtrainer never writes: profile-group state (docs/catalogue.md).
 var forbiddenPrefixes = []string{"browser.profiles.", "toolkit.profiles."}
 
 var (

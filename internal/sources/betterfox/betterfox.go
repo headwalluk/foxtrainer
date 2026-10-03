@@ -1,6 +1,6 @@
 // Package betterfox reads Betterfox's user.js and guide files into pref records with their sections.
 //
-// The format is described in docs/sources-and-credits.md: box-comment SECTION banners,
+// The format is described in docs/catalogue.md: box-comment SECTION banners,
 // "/** NAME ***/" subsections in user.js, and active or commented-out user_pref lines.
 package betterfox
 

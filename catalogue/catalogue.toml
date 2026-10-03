@@ -1,5 +1,5 @@
 # foxtrainer catalogue: sources, pins and excluded upstream prefs.
-# Groups live in groups/*.toml. Design: docs/how-it-works.md ("The catalogue").
+# Groups live in groups/*.toml. Format: docs/catalogue.md.
 
 schema_version    = 1
 catalogue_version = "2026.10.0"
