@@ -1,6 +1,6 @@
 id          = "feel.lean-extras"
 title       = "Lean extras"
-description = "Further trimming from Betterfox's guide: no What's New page after updates, fewer URL bar extras and no new-tab wallpapers or highlights."
+description = "Further trimming from Betterfox's guide: no What's New page after updates, fewer URL bar extras and no new-tab wallpapers or highlights. The URL bar shows the full address, https:// and www. included."
 when        = { feel = ["lean"] }
 
 [[pick]]
@@ -18,3 +18,8 @@ prefs  = [
   "browser.newtabpage.activity-stream.section.highlights.includeDownloads",
   "browser.newtabpage.activity-stream.section.highlights.includeVisited",
 ]
+
+# trimHttps only takes effect while trimURLs is on; both are set so neither hides the scheme.
+[prefs]
+"browser.urlbar.trimURLs"  = false
+"browser.urlbar.trimHttps" = false

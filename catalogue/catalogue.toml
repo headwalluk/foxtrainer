@@ -63,3 +63,13 @@ reason = "Set by foxtrainer's ai.* groups."
 source = "betterfox"
 pref   = "browser.ml.linkPreview.enabled"
 reason = "Set by foxtrainer's ai.* groups."
+
+[[excluded]]
+source = "betterfox"
+pref   = "browser.urlbar.trimHttps"
+reason = "Lean shows the full URL (feel.lean-extras); other levels keep Firefox's default."
+
+[[excluded]]
+source = "betterfox"
+pref   = "browser.urlbar.untrimOnUserInteraction.featureGate"
+reason = "Only matters while URLs are trimmed; foxtrainer leaves trimming to Firefox or turns it off."

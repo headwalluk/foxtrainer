@@ -39,7 +39,8 @@ Whatever you answer, these groups apply:
   no full-screen animation, and a tidier URL bar.
 - `feel.new-tab`: no stories, weather or shortcuts on the new tab page; just the search box.
 - `feel.lean-extras`: no What's New page after updates, fewer URL bar suggestions (trending,
-  add-ons, MDN, Wikipedia, recent searches) and no new tab wallpapers or highlights.
+  add-ons, MDN, Wikipedia, recent searches), no new tab wallpapers or highlights, and the full
+  address in the URL bar (`https://` and `www.` are not hidden).
 
 ## AI features
 

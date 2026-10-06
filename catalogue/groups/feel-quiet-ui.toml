@@ -36,8 +36,6 @@ prefs  = [
   "browser.startup.homepage_override.mstone",
   "browser.aboutwelcome.enabled",
   "browser.compactmode.show",
-  "browser.urlbar.trimHttps",
-  "browser.urlbar.untrimOnUserInteraction.featureGate",
   "browser.urlbar.groupLabels.enabled",
   "permissions.default.desktop-notification",
 ]
